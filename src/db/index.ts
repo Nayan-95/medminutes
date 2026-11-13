@@ -5,6 +5,7 @@ import { Pool } from "pg";
 
 import neonConfig from "../../neon";
 import * as schema from "./schema";
+import { withVerifiedSsl } from "./ssl";
 
 /**
  * node-postgres pool over Neon's *pooled* URL (PgBouncer), as Neon recommends for
@@ -21,7 +22,7 @@ const globalForDb = globalThis as unknown as { medminutesDb?: Db };
 export function getDb(): Db {
   if (!globalForDb.medminutesDb) {
     const { postgres } = parseEnv(neonConfig, ["DATABASE_URL"]);
-    const pool = new Pool({ connectionString: postgres.databaseUrl, max: 10 });
+    const pool = new Pool({ connectionString: withVerifiedSsl(postgres.databaseUrl), max: 10 });
     attachDatabasePool(pool);
     globalForDb.medminutesDb = drizzle(pool, { schema });
   }

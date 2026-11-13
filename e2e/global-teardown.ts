@@ -1,6 +1,8 @@
 import { config } from "dotenv";
 import { Client } from "pg";
 
+import { withVerifiedSsl } from "../src/db/ssl";
+
 import { E2E_USER } from "./constants";
 
 config({ path: ".env.local", quiet: true });
@@ -9,7 +11,7 @@ config({ path: ".env.local", quiet: true });
 export default async function globalTeardown() {
   const url = process.env.DATABASE_URL_UNPOOLED;
   if (!url) return;
-  const db = new Client({ connectionString: url });
+  const db = new Client({ connectionString: withVerifiedSsl(url) });
   await db.connect();
   try {
     await db.query("delete from users where id = $1", [E2E_USER.id]);

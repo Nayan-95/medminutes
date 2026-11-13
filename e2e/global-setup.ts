@@ -5,6 +5,8 @@ import { config } from "dotenv";
 import { encode } from "next-auth/jwt";
 import { Client } from "pg";
 
+import { withVerifiedSsl } from "../src/db/ssl";
+
 import { E2E_USER, STORAGE_STATE } from "./constants";
 
 config({ path: ".env.local", quiet: true });
@@ -19,7 +21,7 @@ export default async function globalSetup() {
   const url = process.env.DATABASE_URL_UNPOOLED;
   if (!secret || !url) throw new Error("e2e needs AUTH_SECRET and DATABASE_URL_UNPOOLED in .env.local");
 
-  const db = new Client({ connectionString: url });
+  const db = new Client({ connectionString: withVerifiedSsl(url) });
   await db.connect();
   try {
     await db.query(

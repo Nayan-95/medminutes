@@ -2,10 +2,10 @@
 
 NEET PG MCQ practice with real exam marking: **+4 correct, −1 wrong, 0 skipped**. Spaced repetition (FSRS) comes next.
 
-> Status: Phase 0 (foundation). See [docs/ROADMAP.md](docs/ROADMAP.md).
+**Live:** https://medminutes.vercel.app · Status: Phase 1 shipped (practice + Google sign-in). See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Stack
-Next.js 16 · React 19 · TypeScript (strict) · Tailwind CSS 4 · PostgreSQL (Neon) · Drizzle ORM · Zod · Vitest · GitHub Actions · Vercel.
+Next.js 16 · React 19 · TypeScript (strict) · Tailwind CSS 4 · shadcn/ui · Auth.js (Google) · PostgreSQL (Neon) · Drizzle ORM · Zod · Vitest · Playwright · GitHub Actions · Vercel.
 Everything runs on free tiers. See [ADR 0001](docs/adr/0001-free-tier-stack.md).
 
 ## Architecture
@@ -26,9 +26,16 @@ neon env pull                     # writes DATABASE_URL(_UNPOOLED) to .env.local
 # then add AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET (see .env.example)
 npm run db:migrate                # create tables
 npm run db:import -- --dry-run    # download + validate MedMCQA
-npm run db:import                 # load ~187k questions
+npm run db:import                 # load ~174k questions (Dental/Unknown excluded)
 npm run dev
 ```
+
+## Branches and deploys
+```
+Release/Release_Dev ──(develop here; CI on every push)──► merge ──► main ──► Vercel production
+```
+- Only `main` deploys (see `vercel.json` → `git.deploymentEnabled`); other branches don't create previews.
+- Production secrets (`DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`) live in Vercel's encrypted environment variables.
 
 ## Scripts
 | Command | What it does |
@@ -44,7 +51,10 @@ npm run dev
 ## Project layout
 ```
 src/app/        Next.js routes
+src/components/ UI components (shadcn/ui in components/ui)
+src/lib/        Scoring, data access, auth helpers
 src/db/         Drizzle schema + client
+e2e/            Playwright tests
 drizzle/        Generated SQL migrations (committed)
 scripts/        Data import (Python, run with uv)
 docs/           Roadmap and architecture decision records
