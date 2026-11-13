@@ -9,13 +9,14 @@
 """Load MedMCQA (train + validation) from Hugging Face into Postgres.
 
 The test split is skipped: it ships without answers (cop = -1) or explanations.
+Subjects in EXCLUDED_SUBJECTS (Dental, Unknown) are skipped; see docs/adr/0003.
 
 Usage:
     uv run scripts/import_medmcqa.py --dry-run              # download + validate, no DB
     uv run scripts/import_medmcqa.py                        # import everything
     uv run scripts/import_medmcqa.py --limit 5000           # import a subset
 
-Reads DATABASE_URL from the environment or .env.local. Safe to re-run: rows are
+Reads DATABASE_URL_UNPOOLED (direct connection) from the environment or .env.local. Safe to re-run: rows are
 keyed on (source, source_id) and existing ones are left untouched.
 """
 
@@ -35,6 +36,8 @@ DATASET = "openlifescienceai/medmcqa"
 SOURCE = "medmcqa"
 SPLITS = ("train", "validation")
 OPTIONS = ("A", "B", "C", "D")
+# Not NEET PG: Dental is a NEET MDS subject; "Unknown" has no usable subject tag.
+EXCLUDED_SUBJECTS = {"Dental", "Unknown"}
 ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = ROOT / "data" / "raw" / "medmcqa"
 
@@ -93,6 +96,9 @@ def load_rows(limit: int | None) -> tuple[list[dict], Counter]:
                 if not question or not all(options) or not subject or not source_id:
                     skipped["missing field"] += 1
                     continue
+                if subject in EXCLUDED_SUBJECTS:
+                    skipped[f"excluded subject: {subject}"] += 1
+                    continue
                 if source_id in seen:
                     skipped["duplicate id"] += 1
                     continue
@@ -137,24 +143,28 @@ def import_rows(rows: list[dict]) -> None:
     from dotenv import load_dotenv
 
     load_dotenv(ROOT / ".env.local")
-    url = os.environ.get("DATABASE_URL")
+    # Bulk COPY uses the direct connection, not the PgBouncer pooler.
+    url = os.environ.get("DATABASE_URL_UNPOOLED")
     if not url:
-        sys.exit("DATABASE_URL is not set (put it in .env.local).")
+        sys.exit("DATABASE_URL_UNPOOLED is not set. Run `neon env pull` to write .env.local.")
 
     with psycopg.connect(url) as conn, conn.cursor() as cur:
-        # Subjects
-        for name in sorted({r["subject"] for r in rows}):
-            cur.execute("insert into subjects (name) values (%s) on conflict (name) do nothing", (name,))
+        # Subjects and topics: one round trip each (unnest arrays), not one per row.
+        subject_names = sorted({r["subject"] for r in rows})
+        cur.execute(
+            "insert into subjects (name) select unnest(%s::text[]) on conflict (name) do nothing",
+            (subject_names,),
+        )
         cur.execute("select id, name from subjects")
         subject_ids = {name: sid for sid, name in cur.fetchall()}
 
-        # Topics
-        for subject, topic in sorted({(r["subject"], r["topic"]) for r in rows if r["topic"]}):
-            cur.execute(
-                "insert into topics (subject_id, name) values (%s, %s) "
-                "on conflict (subject_id, name) do nothing",
-                (subject_ids[subject], topic),
-            )
+        pairs = sorted({(subject_ids[r["subject"]], r["topic"]) for r in rows if r["topic"]})
+        cur.execute(
+            "insert into topics (subject_id, name) "
+            "select * from unnest(%s::int[], %s::text[]) "
+            "on conflict (subject_id, name) do nothing",
+            ([sid for sid, _ in pairs], [name for _, name in pairs]),
+        )
         cur.execute("select id, subject_id, name from topics")
         topic_ids = {(sid, name): tid for tid, sid, name in cur.fetchall()}
 

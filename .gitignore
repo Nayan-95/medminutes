@@ -47,3 +47,8 @@ next-env.d.ts
 # python
 __pycache__/
 .venv/
+.neon
+
+# playwright
+/test-results/
+/playwright-report/

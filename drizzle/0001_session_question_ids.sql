@@ -1,0 +1,1 @@
+ALTER TABLE "practice_sessions" ADD COLUMN "question_ids" integer[] NOT NULL;

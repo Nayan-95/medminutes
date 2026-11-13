@@ -5,8 +5,8 @@
 
 | Phase | Feature | Done when | Status |
 |---|---|---|---|
-| 0 | Foundation: repo, CI, schema, MedMCQA import, first deploy | Push to `main` deploys; questions are in the database | 🟡 In progress |
-| 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | ⬜ |
+| 0 | Foundation: repo, CI, schema, MedMCQA import, first deploy | Push to `main` deploys; questions are in the database | 🟡 Data loaded (173,702 questions); Vercel deploy pending |
+| 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | 🟡 Practice works locally in guest mode; Google sign-in next |
 | 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ⬜ |
 | 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ⬜ |
 | 4 | Reminders: email (Resend free tier) and browser push | Daily "X cards due" reminder | ⬜ |

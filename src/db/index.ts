@@ -1,22 +1,29 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { parseEnv } from "@neon/env";
+import { attachDatabasePool } from "@vercel/functions";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
+import neonConfig from "../../neon";
 import * as schema from "./schema";
 
-let client: ReturnType<typeof createDb> | undefined;
+/**
+ * node-postgres pool over Neon's *pooled* URL (PgBouncer), as Neon recommends for
+ * Vercel Fluid compute. `attachDatabasePool` lets Vercel close idle connections
+ * before a function instance is suspended. Migrations and bulk imports use the
+ * direct URL instead (see drizzle.config.ts and scripts/import_medmcqa.py).
+ */
+type Db = NodePgDatabase<typeof schema> & { $client: Pool };
 
-function createDb(url: string) {
-  return drizzle(neon(url), { schema });
-}
+// Reuse one pool across hot reloads in development.
+const globalForDb = globalThis as unknown as { medminutesDb?: Db };
 
-/** Lazily creates the database client so builds without DATABASE_URL still succeed. */
-export function getDb() {
-  if (!client) {
-    const url = process.env.DATABASE_URL;
-    if (!url) {
-      throw new Error("DATABASE_URL is not set. Copy .env.example to .env.local and fill it in.");
-    }
-    client = createDb(url);
+/** Created lazily so `next build` works without database credentials. */
+export function getDb(): Db {
+  if (!globalForDb.medminutesDb) {
+    const { postgres } = parseEnv(neonConfig, ["DATABASE_URL"]);
+    const pool = new Pool({ connectionString: postgres.databaseUrl, max: 10 });
+    attachDatabasePool(pool);
+    globalForDb.medminutesDb = drizzle(pool, { schema });
   }
-  return client;
+  return globalForDb.medminutesDb;
 }

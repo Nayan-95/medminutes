@@ -94,6 +94,8 @@ export const practiceSessions = pgTable(
     subjectId: integer("subject_id").references(() => subjects.id),
     topicId: integer("topic_id").references(() => topics.id),
     questionCount: smallint("question_count").notNull(),
+    /** The questions drawn for this session, in the order they are shown. */
+    questionIds: integer("question_ids").array().notNull(),
     startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
   },
