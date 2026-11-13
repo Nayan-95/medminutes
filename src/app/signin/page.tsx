@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { LogoMark } from "@/components/logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/current-user";
 
 import { GoogleSignInButton } from "../google-button";
@@ -21,7 +23,7 @@ async function SignIn({ searchParams }: { searchParams: PageProps<"/signin">["se
   return (
     <>
       {error && (
-        <p role="alert" className="max-w-md rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
+        <p role="alert" className="rounded-lg bg-wrong-soft p-3 text-left text-sm">
           {ERRORS[error] ?? "Sign-in failed. Please try again."}
         </p>
       )}
@@ -32,14 +34,18 @@ async function SignIn({ searchParams }: { searchParams: PageProps<"/signin">["se
 
 export default function SignInPage(props: PageProps<"/signin">) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight">Sign in to MedMinutes</h1>
-      <p className="max-w-md text-zinc-600 dark:text-zinc-400">
-        Your scores and progress are saved to your account.
-      </p>
-      <Suspense fallback={<div className="h-12" />}>
-        <SignIn searchParams={props.searchParams} />
-      </Suspense>
+    <div className="flex flex-1 items-center justify-center">
+      <div className="w-full max-w-sm animate-rise rounded-2xl border bg-card p-8 text-center shadow-float">
+        <LogoMark className="mx-auto size-10" />
+        <h1 className="mt-5 text-xl font-semibold tracking-tight">Sign in to MedMinutes</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">Your scores and progress are saved to your account.</p>
+        <div className="mt-6 flex flex-col items-stretch gap-3 [&_form]:w-full [&_button]:w-full">
+          <Suspense fallback={<Skeleton className="h-11 w-full rounded-xl" />}>
+            <SignIn searchParams={props.searchParams} />
+          </Suspense>
+        </div>
+        <p className="mt-6 text-xs text-muted-foreground">Free to use. We only read your name, email and photo.</p>
+      </div>
     </div>
   );
 }

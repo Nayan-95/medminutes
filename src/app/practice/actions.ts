@@ -10,6 +10,7 @@ import { attempts, practiceSessions, questions } from "@/db/schema";
 import { requireUserId } from "@/lib/current-user";
 import { drawQuestionIds, QUESTION_COUNTS, type RecordedAttempt } from "@/lib/practice";
 import { OPTIONS, scoreAnswer } from "@/lib/scoring";
+import { cleanOptional } from "@/lib/text";
 
 const startSchema = z.object({
   subjectId: z.union([z.literal("all"), z.coerce.number().int().positive()]),
@@ -101,7 +102,12 @@ export async function submitAnswer(raw: SubmitAnswerInput): Promise<RecordedAtte
     .from(attempts)
     .where(and(eq(attempts.sessionId, input.sessionId), eq(attempts.questionId, input.questionId)));
 
-  return { questionId: input.questionId, ...stored, correctOption: q.correctOption, explanation: q.explanation };
+  return {
+    questionId: input.questionId,
+    ...stored,
+    correctOption: q.correctOption,
+    explanation: cleanOptional(q.explanation),
+  };
 }
 
 export async function finishSession(sessionId: string) {

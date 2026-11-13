@@ -4,6 +4,7 @@ import { cacheLife } from "next/cache";
 import { getDb } from "@/db";
 import { attempts, practiceSessions, questions, subjects } from "@/db/schema";
 import type { AttemptResult, Option } from "@/lib/scoring";
+import { cleanOptional, cleanText } from "@/lib/text";
 
 export const QUESTION_COUNTS = [10, 20, 50] as const;
 
@@ -87,11 +88,18 @@ export async function getSessionForUser(sessionId: string, userId: string) {
   const ordered: PracticeQuestion[] = session.questionIds.flatMap((id) => {
     const r = byId.get(id);
     return r
-      ? [{ id: r.id, question: r.question, options: { A: r.a, B: r.b, C: r.c, D: r.d }, subject: r.subject }]
+      ? [
+          {
+            id: r.id,
+            question: cleanText(r.question),
+            options: { A: cleanText(r.a), B: cleanText(r.b), C: cleanText(r.c), D: cleanText(r.d) },
+            subject: r.subject,
+          },
+        ]
       : [];
   });
 
-  const done: RecordedAttempt[] = await db
+  const doneRaw: RecordedAttempt[] = await db
     .select({
       questionId: attempts.questionId,
       selectedOption: attempts.selectedOption,
@@ -103,6 +111,7 @@ export async function getSessionForUser(sessionId: string, userId: string) {
     .from(attempts)
     .innerJoin(questions, eq(questions.id, attempts.questionId))
     .where(eq(attempts.sessionId, sessionId));
+  const done = doneRaw.map((a) => ({ ...a, explanation: cleanOptional(a.explanation) }));
 
   return { session, questions: ordered, attempts: done };
 }

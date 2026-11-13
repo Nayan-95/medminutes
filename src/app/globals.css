@@ -1,26 +1,173 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Dark mode follows the operating system setting. */
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Brand + answer states (validated for colour-blind separation, light and dark). */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-correct: var(--correct);
+  --color-correct-soft: var(--correct-soft);
+  --color-wrong: var(--wrong);
+  --color-wrong-soft: var(--wrong-soft);
+  --color-skipped: var(--skipped);
+  --color-surface-raised: var(--surface-raised);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-float: 0 12px 32px -12px rgb(16 24 40 / 0.18), 0 2px 6px rgb(16 24 40 / 0.06);
+
+  --animate-pop: pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  --animate-shake: shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  --animate-rise: rise 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.015); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --background: #f7f7f8;
+  --foreground: #0b0b0f;
+  --card: #ffffff;
+  --card-foreground: #0b0b0f;
+  --surface-raised: #ffffff;
+  --popover: #ffffff;
+  --popover-foreground: #0b0b0f;
+  --primary: #111114;
+  --primary-foreground: #fafafa;
+  --secondary: #efeff1;
+  --secondary-foreground: #18181b;
+  --muted: #f1f1f3;
+  --muted-foreground: #63636e;
+  --accent: #efeff1;
+  --accent-foreground: #18181b;
+  --destructive: #dc2626;
+  --border: #e6e6ea;
+  --input: #dcdce1;
+  --ring: #0d9488;
+  --radius: 0.75rem;
+
+  --brand: #0f766e;
+  --brand-foreground: #ffffff;
+  --correct: #0d9488;
+  --correct-soft: color-mix(in oklab, #0d9488 10%, #ffffff);
+  --wrong: #ef4444;
+  --wrong-soft: color-mix(in oklab, #ef4444 9%, #ffffff);
+  --skipped: #a1a1aa;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --background: #0c0c0e;
+    --foreground: #f4f4f5;
+    --card: #17171a;
+    --card-foreground: #f4f4f5;
+    --surface-raised: #1d1d21;
+    --popover: #1d1d21;
+    --popover-foreground: #f4f4f5;
+    --primary: #f4f4f5;
+    --primary-foreground: #111114;
+    --secondary: #232328;
+    --secondary-foreground: #f4f4f5;
+    --muted: #1f1f23;
+    --muted-foreground: #a1a1aa;
+    --accent: #232328;
+    --accent-foreground: #f4f4f5;
+    --destructive: #f87171;
+    --border: rgb(255 255 255 / 0.08);
+    --input: rgb(255 255 255 / 0.14);
+    --ring: #2dd4bf;
+
+    --brand: #2dd4bf;
+    --brand-foreground: #042f2e;
+    --correct: #0d9488;
+    --correct-soft: color-mix(in oklab, #0d9488 18%, #17171a);
+    --wrong: #ef4444;
+    --wrong-soft: color-mix(in oklab, #ef4444 16%, #17171a);
+    --skipped: #71717a;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--brand) 25%, transparent);
+  }
+}
+
+/* Phones: leave room under the footer for the practice screen's sticky action bar. */
+@media (width < 40rem) {
+  body:has([data-sticky-actions]) > footer {
+    padding-bottom: 5.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

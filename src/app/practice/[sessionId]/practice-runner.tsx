@@ -1,10 +1,17 @@
 "use client";
 
+import { ArrowRight, CircleCheck, CircleMinus, CircleX, Flag, LoaderCircle, Timer, X } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
+import { ScorePill } from "@/components/score-pill";
+import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
+import { buttonVariants } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { formatScore } from "@/lib/format";
 import type { PracticeQuestion, RecordedAttempt } from "@/lib/practice";
-import { OPTIONS, type Option } from "@/lib/scoring";
+import { OPTIONS, type AttemptResult, type Option } from "@/lib/scoring";
+import { cn } from "@/lib/utils";
 
 import { finishSession, submitAnswer } from "../actions";
 
@@ -14,16 +21,47 @@ interface Props {
   initialAttempts: RecordedAttempt[];
 }
 
-const RESULT_LABEL = {
-  correct: "Correct",
-  wrong: "Wrong",
-  skipped: "Skipped",
-} as const;
+const RESULT_UI: Record<AttemptResult, { label: string; Icon: typeof CircleCheck; tone: string }> = {
+  correct: { label: "Correct", Icon: CircleCheck, tone: "text-correct" },
+  wrong: { label: "Wrong", Icon: CircleX, tone: "text-wrong" },
+  skipped: { label: "Skipped", Icon: CircleMinus, tone: "text-muted-foreground" },
+};
+
+const SEGMENT: Record<AttemptResult, string> = {
+  correct: "bg-correct",
+  wrong: "bg-wrong",
+  skipped: "bg-skipped",
+};
+
+function formatClock(totalSeconds: number) {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** Seconds since the current question appeared; stops once it is answered. */
+function QuestionTimer({ running, resetKey }: { running: boolean; resetKey: number }) {
+  const [seconds, setSeconds] = useState(0);
+  const [lastKey, setLastKey] = useState(resetKey);
+  if (lastKey !== resetKey) {
+    setLastKey(resetKey);
+    setSeconds(0);
+  }
+  useEffect(() => {
+    if (!running) return;
+    const id = window.setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [running, resetKey]);
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground tabular-nums" aria-label="Time on this question">
+      <Timer className="size-3.5" aria-hidden />
+      {formatClock(seconds)}
+    </span>
+  );
+}
 
 export function PracticeRunner({ sessionId, questions, initialAttempts }: Props) {
-  const [attempts, setAttempts] = useState(
-    () => new Map(initialAttempts.map((a) => [a.questionId, a])),
-  );
+  const [attempts, setAttempts] = useState(() => new Map(initialAttempts.map((a) => [a.questionId, a])));
   const [index, setIndex] = useState(() => {
     const done = new Set(initialAttempts.map((a) => a.questionId));
     const first = questions.findIndex((q) => !done.has(q.id));
@@ -72,18 +110,25 @@ export function PracticeRunner({ sessionId, questions, initialAttempts }: Props)
     }
     setSelected(null);
     setIndex((i) => i + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [attempt, pending, isLast, sessionId]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("input, textarea, [contenteditable=true]")) return;
       const key = e.key.toLowerCase();
       if (!attempt) {
         const pick = { "1": "A", "2": "B", "3": "C", "4": "D", a: "A", b: "B", c: "C", d: "D" }[key];
         if (pick) setSelected(pick as Option);
         else if (key === "s") answer(null);
-        else if (key === "enter" && selected) answer(selected);
+        else if (key === "enter" && selected) {
+          e.preventDefault();
+          answer(selected);
+        }
       } else if (key === "enter") {
+        e.preventDefault();
         next();
       }
     }
@@ -92,41 +137,69 @@ export function PracticeRunner({ sessionId, questions, initialAttempts }: Props)
   }, [attempt, selected, answer, next]);
 
   if (!question) {
-    return <p>This session has no questions.</p>;
+    return <p className="text-muted-foreground">This session has no questions.</p>;
   }
 
+  const result = attempt ? RESULT_UI[attempt.result] : null;
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-400">
-        <span>
-          Question {index + 1} of {questions.length} · {question.subject}
-        </span>
-        <span className="tabular-nums">
-          Session score <strong className="text-base text-zinc-900 dark:text-zinc-100">{formatScore(sessionScore)}</strong>
-        </span>
-      </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-        <div
-          className="h-full bg-emerald-600 transition-all"
-          style={{ width: `${(attempts.size / questions.length) * 100}%` }}
-        />
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 pb-28 sm:pb-0">
+      {/* Top bar */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/practice"
+            aria-label="Leave session"
+            title="Leave (progress is saved)"
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "text-muted-foreground")}
+          >
+            <X />
+          </Link>
+          <span className="text-sm font-medium tabular-nums" data-testid="question-counter">
+            Question {index + 1} <span className="text-muted-foreground">of {questions.length}</span>
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <QuestionTimer running={!attempt} resetKey={index} />
+          <span data-testid="session-score">
+            <ScorePill value={sessionScore} label="Score" />
+          </span>
+        </div>
       </div>
 
-      <article className="rounded-xl border border-zinc-200 p-6 shadow-sm dark:border-zinc-800">
-        <h1 className="text-lg font-medium leading-relaxed whitespace-pre-line">{question.question}</h1>
+      {/* Progress: one segment per question, coloured by result */}
+      <ol className="flex gap-[2px]" aria-label="Progress">
+        {questions.map((q, i) => {
+          const a = attempts.get(q.id);
+          return (
+            <li
+              key={q.id}
+              aria-label={`Question ${i + 1}: ${a ? RESULT_UI[a.result].label : i === index ? "current" : "not answered"}`}
+              className={cn(
+                "h-1.5 flex-1 rounded-full transition-colors duration-300",
+                a ? SEGMENT[a.result] : i === index ? "bg-foreground/70" : "bg-border",
+              )}
+            />
+          );
+        })}
+      </ol>
 
-        <div className="mt-6 flex flex-col gap-3" role="radiogroup" aria-label="Options">
+      {/* Question */}
+      <article key={question.id} className="animate-rise rounded-2xl border bg-card p-5 shadow-card sm:p-8">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          <SubjectIcon name={question.subject} className="size-3.5" />
+          {subjectLabel(question.subject)}
+        </span>
+        <h1 className="mt-4 text-lg leading-relaxed font-medium whitespace-pre-line sm:text-xl sm:leading-relaxed">
+          {question.question}
+        </h1>
+
+        <div className="mt-6 flex flex-col gap-2.5" role="radiogroup" aria-label="Options">
           {OPTIONS.map((opt, i) => {
             const isCorrect = attempt?.correctOption === opt;
             const isPicked = attempt ? attempt.selectedOption === opt : selected === opt;
-            let style = "border-zinc-300 hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500";
-            if (attempt) {
-              if (isCorrect) style = "border-emerald-600 bg-emerald-50 dark:bg-emerald-950";
-              else if (isPicked) style = "border-red-600 bg-red-50 dark:bg-red-950";
-              else style = "border-zinc-200 opacity-60 dark:border-zinc-800";
-            } else if (isPicked) {
-              style = "border-sky-600 bg-sky-50 dark:bg-sky-950";
-            }
+            const revealedCorrect = !!attempt && isCorrect;
+            const revealedWrong = !!attempt && isPicked && !isCorrect;
             return (
               <button
                 key={opt}
@@ -135,70 +208,138 @@ export function PracticeRunner({ sessionId, questions, initialAttempts }: Props)
                 aria-checked={isPicked}
                 disabled={!!attempt || pending}
                 onClick={() => setSelected(opt)}
-                className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors disabled:cursor-default ${style}`}
+                className={cn(
+                  "group flex items-start gap-3 rounded-xl border bg-card p-3.5 text-left transition-all outline-none sm:p-4",
+                  "focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default",
+                  !attempt && !isPicked && "hover:border-foreground/25 hover:bg-muted/50",
+                  !attempt && isPicked && "border-foreground ring-1 ring-foreground",
+                  revealedCorrect && "border-correct bg-correct-soft",
+                  revealedCorrect && attempt?.selectedOption === opt && "animate-pop",
+                  revealedWrong && "animate-shake border-wrong bg-wrong-soft",
+                  attempt && !revealedCorrect && !revealedWrong && "opacity-50",
+                )}
               >
-                <span className="font-mono text-sm text-zinc-500">{i + 1}</span>
-                <span className="font-semibold">{opt}.</span>
-                <span className="flex-1">{question.options[opt]}</span>
-                {attempt && isCorrect && <span aria-label="correct answer">✓</span>}
-                {attempt && isPicked && !isCorrect && <span aria-label="your answer">✗</span>}
+                <span
+                  className={cn(
+                    "grid size-7 shrink-0 place-items-center rounded-lg border text-xs font-semibold transition-colors",
+                    !attempt && isPicked && "border-foreground bg-foreground text-background",
+                    revealedCorrect && "border-correct bg-correct text-white",
+                    revealedWrong && "border-wrong bg-wrong text-white",
+                  )}
+                >
+                  {opt}
+                </span>
+                <span className="flex-1 pt-0.5 leading-relaxed">{question.options[opt]}</span>
+                {revealedCorrect && <CircleCheck className="mt-0.5 size-5 shrink-0 text-correct" aria-label="Correct answer" />}
+                {revealedWrong && <CircleX className="mt-0.5 size-5 shrink-0 text-wrong" aria-label="Your answer" />}
+                {!attempt && (
+                  <Kbd className="mt-0.5 hidden opacity-0 transition-opacity group-hover:opacity-100 sm:inline-flex">
+                    {i + 1}
+                  </Kbd>
+                )}
               </button>
             );
           })}
         </div>
 
-        {attempt && (
-          <div className="mt-6 rounded-lg bg-zinc-100 p-4 dark:bg-zinc-900" aria-live="polite">
-            <p className="font-semibold">
-              {RESULT_LABEL[attempt.result]} · {formatScore(attempt.points)}
-              {attempt.result !== "correct" && <> · Answer: {attempt.correctOption}</>}
-            </p>
-            {attempt.explanation ? (
-              <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-zinc-700 dark:text-zinc-300">
-                {attempt.explanation}
-              </p>
-            ) : (
-              <p className="mt-2 text-sm text-zinc-500">No explanation available for this question.</p>
-            )}
-          </div>
-        )}
+        {/* Feedback */}
+        <div aria-live="polite">
+          {attempt && result && (
+            <section
+              data-testid="feedback"
+              data-result={attempt.result}
+              data-points={attempt.points}
+              className="mt-6 animate-rise rounded-xl border bg-muted/50 p-4 sm:p-5"
+            >
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className={cn("inline-flex items-center gap-1.5 font-semibold", result.tone)}>
+                  <result.Icon className="size-5" aria-hidden />
+                  <span className="text-foreground">{result.label}</span>
+                </span>
+                <span className="rounded-full bg-card px-2 py-0.5 text-xs font-semibold tabular-nums">
+                  {formatScore(attempt.points)}
+                </span>
+                {attempt.result !== "correct" && (
+                  <span className="text-sm text-muted-foreground">
+                    Answer: <span className="font-semibold text-foreground">{attempt.correctOption}</span>
+                  </span>
+                )}
+              </div>
+              {attempt.explanation ? (
+                <p className="mt-3 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+                  <span className="font-medium text-foreground">Explanation · </span>
+                  {attempt.explanation}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">No explanation available for this question.</p>
+              )}
+            </section>
+          )}
+        </div>
       </article>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-lg bg-wrong-soft px-3 py-2 text-sm">
+          {error}
+        </p>
+      )}
 
-      <div className="flex items-center gap-3">
-        {!attempt ? (
-          <>
+      {/* Actions: sticky on phones, inline on larger screens */}
+      <div data-sticky-actions className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/85 px-4 py-3 backdrop-blur-xl sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex max-w-3xl items-center gap-3">
+          {!attempt ? (
+            <>
+              <button
+                type="button"
+                onClick={() => answer(null)}
+                disabled={pending}
+                className={cn(buttonVariants({ variant: "outline", size: "xl" }), "flex-1 sm:flex-none")}
+              >
+                Skip (0)
+              </button>
+              <button
+                type="button"
+                onClick={() => selected && answer(selected)}
+                disabled={!selected || pending}
+                className={cn(buttonVariants({ size: "xl" }), "flex-[2] sm:flex-none sm:min-w-36")}
+              >
+                {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
+                {pending ? "Checking…" : "Submit"}
+              </button>
+            </>
+          ) : (
             <button
               type="button"
-              onClick={() => selected && answer(selected)}
-              disabled={!selected || pending}
-              className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-            >
-              {pending ? "Checking…" : "Submit"}
-            </button>
-            <button
-              type="button"
-              onClick={() => answer(null)}
+              onClick={next}
               disabled={pending}
-              className="rounded-lg border border-zinc-300 px-6 py-3 font-medium hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
+              autoFocus
+              className={cn(buttonVariants({ size: "xl" }), "flex-1 sm:flex-none sm:min-w-44")}
             >
-              Skip (0)
+              {isLast ? (
+                <>
+                  {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : <Flag aria-hidden />}
+                  {pending ? "Finishing…" : "Finish session"}
+                </>
+              ) : (
+                <>
+                  Next question
+                  <ArrowRight data-icon="inline-end" aria-hidden />
+                </>
+              )}
             </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={next}
-            disabled={pending}
-            className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-          >
-            {isLast ? (pending ? "Finishing…" : "Finish session") : "Next question"}
-          </button>
-        )}
-        <span className="ml-auto hidden text-xs text-zinc-500 sm:block">
-          Keys: 1–4 choose · Enter submit/next · S skip
-        </span>
+          )}
+          <span className="ml-auto hidden items-center gap-1.5 text-xs text-muted-foreground md:flex">
+            {attempt ? (
+              <>
+                <Kbd>Enter</Kbd> {isLast ? "finish" : "next"}
+              </>
+            ) : (
+              <>
+                <Kbd>1</Kbd>–<Kbd>4</Kbd> choose <Kbd>Enter</Kbd> submit <Kbd>S</Kbd> skip
+              </>
+            )}
+          </span>
+        </div>
       </div>
     </div>
   );

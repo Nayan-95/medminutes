@@ -7,7 +7,7 @@ test.describe("signed out", () => {
 
   test("home offers Google sign-in and practice requires it", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue with Google" }).first()).toBeVisible();
     await expect(page.locator("header").getByRole("button", { name: "Sign in" })).toBeVisible();
 
     await page.goto("/practice");
@@ -21,11 +21,14 @@ test.describe("signed out", () => {
   });
 });
 
-test("signed in: header shows the user and a sign-out button", async ({ page }) => {
+test("signed in: account menu shows the user and a sign-out action", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByTestId("total-score")).toBeVisible();
+  await page.getByTestId("user-menu").click();
   await expect(page.getByTestId("user-name")).toHaveText(E2E_USER.name);
-  await expect(page.locator("header").getByRole("button", { name: "Sign out" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Start practising" })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("link", { name: "Start practising" }).first()).toBeVisible();
 });
 
 test("signed in: a missing or deleted session sends you to practice, not a 404", async ({ page }) => {

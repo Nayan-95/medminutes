@@ -1,18 +1,32 @@
 "use client";
 
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useFormStatus } from "react-dom";
 
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 /** Disables itself while the form submits, so one click starts exactly one session. */
-export function StartButton() {
+export function StartButton({ label = "Start session", className }: { label?: string; className?: string }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className="self-start rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+      className={cn(buttonVariants({ size: "xl" }), className)}
     >
-      {pending ? "Starting…" : "Start session"}
+      {pending ? (
+        <>
+          <LoaderCircle className="animate-spin" aria-hidden />
+          Starting…
+        </>
+      ) : (
+        <>
+          {label}
+          <ArrowRight data-icon="inline-end" aria-hidden />
+        </>
+      )}
     </button>
   );
 }
