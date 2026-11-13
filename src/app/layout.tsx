@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { getCurrentUserId } from "@/lib/current-user";
+import { getCurrentUser } from "@/lib/current-user";
 import { formatScore } from "@/lib/format";
 import { getTotalScore } from "@/lib/practice";
+
+import { signInWithGoogle, signOutAction } from "./auth-actions";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,13 +25,35 @@ export const metadata: Metadata = {
   description: "Practise NEET PG MCQs with real exam marking: +4 correct, −1 wrong, 0 skipped.",
 };
 
-async function TotalScore() {
-  await connection();
-  const total = await getTotalScore(getCurrentUserId());
+/** Reads the session (a cookie), so it streams in behind a Suspense boundary. */
+async function UserMenu() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return (
+      <form action={signInWithGoogle}>
+        <input type="hidden" name="callbackUrl" value="/practice" />
+        <button type="submit" className="font-medium text-emerald-700 hover:underline dark:text-emerald-400">
+          Sign in
+        </button>
+      </form>
+    );
+  }
+
+  const total = await getTotalScore(user.id);
   return (
-    <span className="tabular-nums" title="Lifetime score: +4 correct, −1 wrong, 0 skipped">
-      Total score <strong className="ml-1 text-base">{formatScore(total)}</strong>
-    </span>
+    <div className="flex items-center gap-4">
+      <span className="tabular-nums" title="Lifetime score: +4 correct, −1 wrong, 0 skipped">
+        Total score <strong className="ml-1 text-base text-zinc-900 dark:text-zinc-100">{formatScore(total)}</strong>
+      </span>
+      <span className="hidden sm:inline" data-testid="user-name">
+        {user.name ?? user.email}
+      </span>
+      <form action={signOutAction}>
+        <button type="submit" className="hover:underline">
+          Sign out
+        </button>
+      </form>
+    </div>
   );
 }
 
@@ -47,8 +70,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               MedMinutes
             </Link>
             <div className="text-sm text-zinc-600 dark:text-zinc-400">
-              <Suspense fallback={<span>Total score …</span>}>
-                <TotalScore />
+              <Suspense fallback={<span aria-hidden>…</span>}>
+                <UserMenu />
               </Suspense>
             </div>
           </div>

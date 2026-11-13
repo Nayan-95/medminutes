@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { getCurrentUserId } from "@/lib/current-user";
+import { requireUserId } from "@/lib/current-user";
 import { formatDuration, formatPercent, formatScore } from "@/lib/format";
 import { getSessionForUser } from "@/lib/practice";
 import { summarise } from "@/lib/scoring";
@@ -13,7 +13,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
   const { sessionId } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(sessionId)) notFound();
 
-  const data = await getSessionForUser(sessionId, getCurrentUserId());
+  const data = await getSessionForUser(sessionId, await requireUserId(`/practice/${sessionId}/summary`));
   if (!data) notFound();
 
   const s = summarise(data.attempts.map((a) => a.result));

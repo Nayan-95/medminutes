@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { getDb } from "@/db";
 import { attempts, practiceSessions, questions } from "@/db/schema";
-import { ensureCurrentUser, getCurrentUserId } from "@/lib/current-user";
+import { requireUserId } from "@/lib/current-user";
 import { drawQuestionIds, QUESTION_COUNTS, type RecordedAttempt } from "@/lib/practice";
 import { OPTIONS, scoreAnswer } from "@/lib/scoring";
 
@@ -24,7 +24,7 @@ export async function startSession(formData: FormData) {
     subjectId: formData.get("subjectId"),
     count: formData.get("count"),
   });
-  const userId = await ensureCurrentUser();
+  const userId = await requireUserId();
   const subjectId = input.subjectId === "all" ? null : input.subjectId;
 
   const questionIds = await drawQuestionIds(subjectId, input.count);
@@ -54,7 +54,7 @@ export type SubmitAnswerInput = z.input<typeof answerSchema>;
  */
 export async function submitAnswer(raw: SubmitAnswerInput): Promise<RecordedAttempt> {
   const input = answerSchema.parse(raw);
-  const userId = getCurrentUserId();
+  const userId = await requireUserId();
   const db = getDb();
 
   const [session] = await db
@@ -106,7 +106,7 @@ export async function submitAnswer(raw: SubmitAnswerInput): Promise<RecordedAtte
 
 export async function finishSession(sessionId: string) {
   const id = z.uuid().parse(sessionId);
-  const userId = getCurrentUserId();
+  const userId = await requireUserId();
   await getDb()
     .update(practiceSessions)
     .set({ endedAt: new Date() })

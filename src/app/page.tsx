@@ -1,4 +1,22 @@
 import Link from "next/link";
+import { Suspense } from "react";
+
+import { getCurrentUser } from "@/lib/current-user";
+
+import { GoogleSignInButton } from "./google-button";
+
+async function CallToAction() {
+  const user = await getCurrentUser();
+  if (!user) return <GoogleSignInButton />;
+  return (
+    <Link
+      href="/practice"
+      className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700"
+    >
+      Start practising
+    </Link>
+  );
+}
 
 export default function Home() {
   return (
@@ -8,12 +26,9 @@ export default function Home() {
         Real exam marking on every card: <strong>+4</strong> correct, <strong>−1</strong> wrong,{" "}
         <strong>0</strong> skipped.
       </p>
-      <Link
-        href="/practice"
-        className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white hover:bg-emerald-700"
-      >
-        Start practising
-      </Link>
+      <Suspense fallback={<div className="h-12" />}>
+        <CallToAction />
+      </Suspense>
     </div>
   );
 }

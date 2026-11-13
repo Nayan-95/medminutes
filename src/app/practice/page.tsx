@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { requireUserId } from "@/lib/current-user";
 import { listSubjects, QUESTION_COUNTS } from "@/lib/practice";
 
 import { startSession } from "./actions";
@@ -10,6 +11,7 @@ async function SetupForm() {
   // Request time, not build time: builds (and CI) need no database, and the
   // subject list reflects the latest import. listSubjects() is still cached.
   await connection();
+  await requireUserId("/practice");
   const subjects = await listSubjects();
   const total = subjects.reduce((n, s) => n + s.questionCount, 0);
 

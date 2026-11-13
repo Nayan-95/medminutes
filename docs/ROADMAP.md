@@ -6,7 +6,7 @@
 | Phase | Feature | Done when | Status |
 |---|---|---|---|
 | 0 | Foundation: repo, CI, schema, MedMCQA import, first deploy | Push to `main` deploys; questions are in the database | 🟡 Data loaded (173,702 questions); Vercel deploy pending |
-| 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | 🟡 Practice works locally in guest mode; Google sign-in next |
+| 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | ✅ Done locally (Google sign-in via Auth.js); ships with the Vercel deploy |
 | 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ⬜ |
 | 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ⬜ |
 | 4 | Reminders: email (Resend free tier) and browser push | Daily "X cards due" reminder | ⬜ |
@@ -17,7 +17,7 @@ WhatsApp reminders are out of scope because the WhatsApp Business API is paid.
 
 ## Phase 1 spec: MCQ practice
 
-- Google sign-in (Auth.js).
+- Google sign-in (Auth.js v5, JWT sessions, users + linked accounts in Postgres).
 - Pick a subject (and optionally a topic) and a question count (10 / 20 / 50).
 - Each card shows the question with options A–D, plus **Submit** and **Skip**.
 - **Answer reveal is instant:** after Submit, the correct option is green and a wrong pick is red, followed by the explanation.

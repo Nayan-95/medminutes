@@ -5,6 +5,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  primaryKey,
   serial,
   smallint,
   text,
@@ -66,7 +67,7 @@ export const questions = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// Users (shape matches the Auth.js Drizzle adapter; auth tables arrive in Phase 1)
+// Auth (Auth.js Drizzle adapter). Sessions are JWTs, so there is no sessions table.
 // ---------------------------------------------------------------------------
 
 export const users = pgTable("users", {
@@ -78,6 +79,30 @@ export const users = pgTable("users", {
   emailVerified: timestamp("email_verified", { mode: "date", withTimezone: true }),
   image: text("image"),
 });
+
+/** Links a user to a sign-in provider account (e.g. their Google account). */
+export const accounts = pgTable(
+  "accounts",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.provider, t.providerAccountId] }),
+    index("accounts_user_idx").on(t.userId),
+  ],
+);
 
 // ---------------------------------------------------------------------------
 // Practice

@@ -1,30 +1,32 @@
-import { getDb } from "@/db";
-import { users } from "@/db/schema";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
+
+import { auth } from "@/auth";
 
 /**
- * Temporary guest identity until Google sign-in lands (see docs/ROADMAP.md).
- * Everyone using a guest-mode instance shares this one user, so guest mode is
- * only allowed in development or when GUEST_MODE=true is set explicitly.
+ * Data access layer for "who is this?". Every page and Server Action asks here
+ * instead of reading the session directly, so the auth check lives in one place.
  */
-const GUEST_USER_ID = "local-guest";
-
-function guestModeAllowed() {
-  return process.env.NODE_ENV === "development" || process.env.GUEST_MODE === "true";
+export interface CurrentUser {
+  id: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
 }
 
-export function getCurrentUserId(): string {
-  if (!guestModeAllowed()) {
-    throw new Error("Sign-in is not available yet. Run locally, or set GUEST_MODE=true.");
-  }
-  return GUEST_USER_ID;
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  // Auth.js uses crypto randomness when it refreshes the session cookie, so this
+  // must run at request time, never during prerendering (Next.js 16 Cache Components).
+  await connection();
+  const session = await auth();
+  const u = session?.user;
+  if (!u?.id) return null;
+  return { id: u.id, name: u.name ?? null, email: u.email ?? null, image: u.image ?? null };
 }
 
-/** Makes sure the current user exists in the database before writing rows that reference it. */
-export async function ensureCurrentUser(): Promise<string> {
-  const id = getCurrentUserId();
-  await getDb()
-    .insert(users)
-    .values({ id, name: "Guest" })
-    .onConflictDoNothing({ target: users.id });
-  return id;
+/** Returns the signed-in user's id, or redirects to the sign-in page. */
+export async function requireUserId(returnTo = "/practice"): Promise<string> {
+  const user = await getCurrentUser();
+  if (!user) redirect(`/signin?callbackUrl=${encodeURIComponent(returnTo)}`);
+  return user.id;
 }

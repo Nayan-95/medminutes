@@ -22,7 +22,8 @@ Prerequisites: Node 22 (`.nvmrc`), [uv](https://docs.astral.sh/uv/), a free [Neo
 
 ```bash
 npm install
-cp .env.example .env.local        # then set DATABASE_URL
+neon env pull                     # writes DATABASE_URL(_UNPOOLED) to .env.local
+# then add AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET (see .env.example)
 npm run db:migrate                # create tables
 npm run db:import -- --dry-run    # download + validate MedMCQA
 npm run db:import                 # load ~187k questions
@@ -34,6 +35,7 @@ npm run dev
 |---|---|
 | `npm run dev` | Start the dev server |
 | `npm run lint` / `typecheck` / `test` | Quality checks (all run in CI) |
+| `npm run test:e2e` | Browser tests (Playwright) against the local dev server, as a throwaway test user |
 | `npm run db:generate` | Create a migration after changing `src/db/schema.ts` |
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:studio` | Browse the database |
