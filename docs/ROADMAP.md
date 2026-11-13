@@ -8,12 +8,14 @@
 | 0 | Foundation: repo, CI, schema, MedMCQA import, first deploy | Push to `main` deploys; questions are in the database | ✅ Live at medminutes.vercel.app |
 | 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | ✅ Shipped |
 | 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ✅ Shipped |
-| 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ✅ Built (on `Release/Release_Dev`) |
-| 4 | Reminders: email (Resend free tier) and browser push | Daily "X cards due" reminder | ⬜ |
+| 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ✅ Shipped |
+| 4 | Reminders: installable PWA + Web Push (email needs a paid domain, so deferred) | Daily "X cards due" reminder | ⬜ Planned, see docs/NEXT.md |
 | 5 | Exam-date countdown | Low-recall topics are prioritised as the exam nears | ⬜ |
 | 6 | `.apkg` import, AI card generation (your own API key) | — | ⬜ |
 
 WhatsApp reminders are out of scope because the WhatsApp Business API is paid.
+
+**AI track** (decide before more add-ons): see `docs/NEXT.md` and `research/02-ai-features.md`.
 
 ## Phase 1 spec: MCQ practice
 
