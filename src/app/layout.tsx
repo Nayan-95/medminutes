@@ -86,7 +86,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-border/70">
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-1 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
             <span>MedMinutes · NEET PG practice with real exam marking</span>
-            <span>Questions from the MedMCQA dataset</span>
+            <span className="flex gap-4">
+              <span>Questions from the MedMCQA dataset</span>
+              <Link href="/privacy" className="hover:text-foreground">
+                Privacy
+              </Link>
+              <Link href="/terms" className="hover:text-foreground">
+                Terms
+              </Link>
+            </span>
           </div>
         </footer>
       </body>
