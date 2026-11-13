@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
@@ -11,10 +11,11 @@ import { summarise } from "@/lib/scoring";
 async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/summary">["params"] }) {
   await connection();
   const { sessionId } = await params;
-  if (!/^[0-9a-f-]{36}$/i.test(sessionId)) notFound();
+  if (!/^[0-9a-f-]{36}$/i.test(sessionId)) redirect("/practice");
 
   const data = await getSessionForUser(sessionId, await requireUserId(`/practice/${sessionId}/summary`));
-  if (!data) notFound();
+  // Missing, deleted or not yours: send to a fresh session instead of a dead-end 404.
+  if (!data) redirect("/practice");
 
   const s = summarise(data.attempts.map((a) => a.result));
   const unanswered = data.questions.length - data.attempts.length;

@@ -27,3 +27,12 @@ test("signed in: header shows the user and a sign-out button", async ({ page }) 
   await expect(page.locator("header").getByRole("button", { name: "Sign out" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Start practising" })).toBeVisible();
 });
+
+test("signed in: a missing or deleted session sends you to practice, not a 404", async ({ page }) => {
+  await page.goto("/practice/00000000-0000-0000-0000-000000000000");
+  await expect(page).toHaveURL(/\/practice$/);
+  await expect(page.getByRole("heading", { name: "New practice session" })).toBeVisible();
+
+  await page.goto("/practice/00000000-0000-0000-0000-000000000000/summary");
+  await expect(page).toHaveURL(/\/practice$/);
+});
