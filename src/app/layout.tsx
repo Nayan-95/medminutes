@@ -54,12 +54,14 @@ async function HeaderAccount() {
   const total = await getTotalScore(user.id);
   return (
     <div className="flex items-center gap-2 sm:gap-3">
-      <Link
-        href="/practice"
-        className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "hidden text-muted-foreground sm:inline-flex")}
-      >
-        Practice
-      </Link>
+      <nav className="hidden items-center sm:flex" aria-label="Main">
+        <Link href="/practice" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
+          Practice
+        </Link>
+        <Link href="/progress" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
+          Progress
+        </Link>
+      </nav>
       <span title="Lifetime score: +4 correct, −1 wrong, 0 skipped" data-testid="total-score">
         <ScorePill value={total} label="Total" />
       </span>

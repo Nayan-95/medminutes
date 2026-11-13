@@ -1,6 +1,7 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { ChartColumn, LogOut, Play } from "lucide-react";
+import Link from "next/link";
 import { useTransition } from "react";
 
 import { signOutAction } from "@/app/auth-actions";
@@ -55,6 +56,17 @@ export function UserMenu({
             </span>
             {name && email && <span className="truncate text-xs text-muted-foreground">{email}</span>}
           </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem render={<Link href="/practice" />}>
+            <Play />
+            Practice
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/progress" />}>
+            <ChartColumn />
+            Progress
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

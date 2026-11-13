@@ -63,6 +63,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
             <SubjectIcon name={subjectName} className="size-3.5" />
             {subjectName ? subjectLabel(subjectName) : "All subjects"}
+            {data.topicName && <span className="text-muted-foreground">· {data.topicName}</span>}
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs">
             <Clock className="size-3.5" aria-hidden /> {formatDuration(elapsed)}
@@ -111,6 +112,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
         <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
           <form action={startSession} className="sm:flex-none">
             <input type="hidden" name="subjectId" value={data.session.subjectId ?? "all"} />
+            {data.session.topicId !== null && <input type="hidden" name="topicId" value={data.session.topicId} />}
             <input type="hidden" name="count" value={data.session.questionCount} />
             <StartButton label="Practise again" className="w-full" />
           </form>

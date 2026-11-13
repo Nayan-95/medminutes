@@ -2,7 +2,7 @@ import { and, asc, eq, inArray, sql, sum } from "drizzle-orm";
 import { cacheLife } from "next/cache";
 
 import { getDb } from "@/db";
-import { attempts, practiceSessions, questions, subjects } from "@/db/schema";
+import { attempts, practiceSessions, questions, subjects, topics } from "@/db/schema";
 import type { AttemptResult, Option } from "@/lib/scoring";
 import { cleanOptional, cleanText } from "@/lib/text";
 
@@ -33,11 +33,20 @@ export async function getTotalScore(userId: string): Promise<number> {
   return row?.total ?? 0;
 }
 
-export async function drawQuestionIds(subjectId: number | null, count: number): Promise<number[]> {
+export async function drawQuestionIds(
+  filter: { subjectId: number | null; topicId: number | null },
+  count: number,
+): Promise<number[]> {
+  const where =
+    filter.topicId !== null
+      ? eq(questions.topicId, filter.topicId)
+      : filter.subjectId !== null
+        ? eq(questions.subjectId, filter.subjectId)
+        : undefined;
   const rows = await getDb()
     .select({ id: questions.id })
     .from(questions)
-    .where(subjectId === null ? undefined : eq(questions.subjectId, subjectId))
+    .where(where)
     .orderBy(sql`random()`)
     .limit(count);
   return rows.map((r) => r.id);
@@ -65,11 +74,14 @@ export interface RecordedAttempt {
  */
 export async function getSessionForUser(sessionId: string, userId: string) {
   const db = getDb();
-  const [session] = await db
-    .select()
+  const [row] = await db
+    .select({ session: practiceSessions, topicName: topics.name })
     .from(practiceSessions)
+    .leftJoin(topics, eq(topics.id, practiceSessions.topicId))
     .where(and(eq(practiceSessions.id, sessionId), eq(practiceSessions.userId, userId)));
-  if (!session) return null;
+  if (!row) return null;
+  const session = row.session;
+  const topicName = row.topicName ? row.topicName.charAt(0).toUpperCase() + row.topicName.slice(1) : null;
 
   const rows = await db
     .select({
@@ -113,5 +125,5 @@ export async function getSessionForUser(sessionId: string, userId: string) {
     .where(eq(attempts.sessionId, sessionId));
   const done = doneRaw.map((a) => ({ ...a, explanation: cleanOptional(a.explanation) }));
 
-  return { session, questions: ordered, attempts: done };
+  return { session, topicName, questions: ordered, attempts: done };
 }

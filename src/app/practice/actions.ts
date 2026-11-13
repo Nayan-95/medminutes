@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getDb } from "@/db";
-import { attempts, practiceSessions, questions } from "@/db/schema";
+import { attempts, practiceSessions, questions, topics } from "@/db/schema";
 import { requireUserId } from "@/lib/current-user";
 import { drawQuestionIds, QUESTION_COUNTS, type RecordedAttempt } from "@/lib/practice";
 import { OPTIONS, scoreAnswer } from "@/lib/scoring";
@@ -14,6 +14,7 @@ import { cleanOptional } from "@/lib/text";
 
 const startSchema = z.object({
   subjectId: z.union([z.literal("all"), z.coerce.number().int().positive()]),
+  topicId: z.coerce.number().int().positive().optional(),
   count: z.coerce
     .number()
     .int()
@@ -23,17 +24,29 @@ const startSchema = z.object({
 export async function startSession(formData: FormData) {
   const input = startSchema.parse({
     subjectId: formData.get("subjectId"),
+    topicId: formData.get("topicId") || undefined,
     count: formData.get("count"),
   });
   const userId = await requireUserId();
-  const subjectId = input.subjectId === "all" ? null : input.subjectId;
+  let subjectId = input.subjectId === "all" ? null : input.subjectId;
+  let topicId: number | null = null;
+  if (input.topicId !== undefined) {
+    // A topic implies its subject; trust the database, not the form.
+    const [topic] = await getDb()
+      .select({ id: topics.id, subjectId: topics.subjectId })
+      .from(topics)
+      .where(eq(topics.id, input.topicId));
+    if (!topic) throw new Error("Unknown topic.");
+    topicId = topic.id;
+    subjectId = topic.subjectId;
+  }
 
-  const questionIds = await drawQuestionIds(subjectId, input.count);
+  const questionIds = await drawQuestionIds({ subjectId, topicId }, input.count);
   if (questionIds.length === 0) throw new Error("No questions found for that subject.");
 
   const [session] = await getDb()
     .insert(practiceSessions)
-    .values({ userId, subjectId, questionCount: questionIds.length, questionIds })
+    .values({ userId, subjectId, topicId, questionCount: questionIds.length, questionIds })
     .returning({ id: practiceSessions.id });
 
   redirect(`/practice/${session.id}`);
@@ -123,6 +136,6 @@ export async function finishSession(sessionId: string) {
         isNull(practiceSessions.endedAt),
       ),
     );
-  revalidatePath("/", "layout"); // refresh the lifetime score in the header
+  revalidatePath("/", "layout"); // refresh the lifetime score in the header and progress
   redirect(`/practice/${id}/summary`);
 }
