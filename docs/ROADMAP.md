@@ -7,8 +7,8 @@
 |---|---|---|---|
 | 0 | Foundation: repo, CI, schema, MedMCQA import, first deploy | Push to `main` deploys; questions are in the database | ✅ Live at medminutes.vercel.app |
 | 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | ✅ Shipped |
-| 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ✅ Built (on `Release/Release_Dev`) |
-| 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ⬜ |
+| 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ✅ Shipped |
+| 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ✅ Built (on `Release/Release_Dev`) |
 | 4 | Reminders: email (Resend free tier) and browser push | Daily "X cards due" reminder | ⬜ |
 | 5 | Exam-date countdown | Low-recall topics are prioritised as the exam nears | ⬜ |
 | 6 | `.apkg` import, AI card generation (your own API key) | — | ⬜ |

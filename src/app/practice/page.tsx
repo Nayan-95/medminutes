@@ -4,7 +4,8 @@ import { Suspense } from "react";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUserId } from "@/lib/current-user";
-import { listSubjects, QUESTION_COUNTS } from "@/lib/practice";
+import { getReviewStatus, listSubjects, QUESTION_COUNTS } from "@/lib/practice";
+import { ReviewBanner } from "@/components/review-banner";
 import { cn } from "@/lib/utils";
 
 import { startSession } from "./actions";
@@ -59,63 +60,67 @@ async function SetupForm() {
   // Request time, not build time: builds (and CI) need no database, and the
   // subject list reflects the latest import. listSubjects() is still cached.
   await connection();
-  await requireUserId("/practice");
-  const subjects = await listSubjects();
+  const userId = await requireUserId("/practice");
+  const [subjects, review] = await Promise.all([listSubjects(), getReviewStatus(userId)]);
   const total = subjects.reduce((n, s) => n + s.questionCount, 0);
 
   return (
-    <form action={startSession} className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
-      <fieldset>
-        <legend className="mb-3 text-sm font-medium">Subject</legend>
-        <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 md:grid-cols-3">
-          <SubjectOption value="all" name={null} label="All subjects" count={total} defaultChecked />
-          {subjects.map((s) => (
-            <SubjectOption
-              key={s.id}
-              value={String(s.id)}
-              name={s.name}
-              label={subjectLabel(s.name)}
-              count={s.questionCount}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <aside className="flex flex-col gap-5 rounded-2xl border bg-card p-5 shadow-card lg:sticky lg:top-20">
+    <div className="flex flex-col gap-8">
+      <ReviewBanner {...review} now={new Date()} />
+      <form action={startSession} className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
+        <input type="hidden" name="kind" value="practice" />
         <fieldset>
-          <legend className="mb-3 text-sm font-medium">Questions</legend>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
-            {QUESTION_COUNTS.map((n) => (
-              <label
-                key={n}
-                className="flex cursor-pointer flex-col items-center rounded-lg py-2 text-sm font-semibold tabular-nums transition-all has-checked:bg-card has-checked:shadow-card has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
-              >
-                <input type="radio" name="count" value={n} defaultChecked={n === 10} className="sr-only" />
-                {n}
-                <span className="text-[11px] font-normal text-muted-foreground">{minutesFor(n)}</span>
-              </label>
+          <legend className="mb-3 text-sm font-medium">Subject</legend>
+          <div className="grid grid-cols-1 gap-2.5 min-[420px]:grid-cols-2 md:grid-cols-3">
+            <SubjectOption value="all" name={null} label="All subjects" count={total} defaultChecked />
+            {subjects.map((s) => (
+              <SubjectOption
+                key={s.id}
+                value={String(s.id)}
+                name={s.name}
+                label={subjectLabel(s.name)}
+                count={s.questionCount}
+              />
             ))}
           </div>
         </fieldset>
 
-        <div className="rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
-          <p className="mb-1.5 font-medium text-foreground">NEET PG marking</p>
-          <ul className="grid grid-cols-3 gap-2 text-center tabular-nums">
-            <li className="rounded-lg bg-card py-1.5">
-              <span className="block text-sm font-semibold text-foreground">+4</span>correct
-            </li>
-            <li className="rounded-lg bg-card py-1.5">
-              <span className="block text-sm font-semibold text-foreground">−1</span>wrong
-            </li>
-            <li className="rounded-lg bg-card py-1.5">
-              <span className="block text-sm font-semibold text-foreground">0</span>skipped
-            </li>
-          </ul>
-        </div>
+        <aside className="flex flex-col gap-5 rounded-2xl border bg-card p-5 shadow-card lg:sticky lg:top-20">
+          <fieldset>
+            <legend className="mb-3 text-sm font-medium">Questions</legend>
+            <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
+              {QUESTION_COUNTS.map((n) => (
+                <label
+                  key={n}
+                  className="flex cursor-pointer flex-col items-center rounded-lg py-2 text-sm font-semibold tabular-nums transition-all has-checked:bg-card has-checked:shadow-card has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+                >
+                  <input type="radio" name="count" value={n} defaultChecked={n === 10} className="sr-only" />
+                  {n}
+                  <span className="text-[11px] font-normal text-muted-foreground">{minutesFor(n)}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
-        <StartButton className="w-full" />
-      </aside>
-    </form>
+          <div className="rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">
+            <p className="mb-1.5 font-medium text-foreground">NEET PG marking</p>
+            <ul className="grid grid-cols-3 gap-2 text-center tabular-nums">
+              <li className="rounded-lg bg-card py-1.5">
+                <span className="block text-sm font-semibold text-foreground">+4</span>correct
+              </li>
+              <li className="rounded-lg bg-card py-1.5">
+                <span className="block text-sm font-semibold text-foreground">−1</span>wrong
+              </li>
+              <li className="rounded-lg bg-card py-1.5">
+                <span className="block text-sm font-semibold text-foreground">0</span>skipped
+              </li>
+            </ul>
+          </div>
+
+          <StartButton className="w-full" />
+        </aside>
+      </form>
+    </div>
   );
 }
 

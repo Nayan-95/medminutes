@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, CircleCheck, Keyboard, Target } from "lucide-react";
+import { ArrowRight, BookOpen, CircleCheck, Keyboard, RotateCcw, Target } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/lib/current-user";
-import { listSubjects } from "@/lib/practice";
+import { getReviewStatus, listSubjects } from "@/lib/practice";
 import { cn } from "@/lib/utils";
 
 import { GoogleSignInButton } from "./google-button";
@@ -22,11 +22,20 @@ async function CallToAction() {
       </div>
     );
   }
+  const review = await getReviewStatus(user.id);
   return (
-    <Link href="/practice" className={cn(buttonVariants({ size: "xl" }), "w-full sm:w-auto")}>
-      Start practising
-      <ArrowRight data-icon="inline-end" />
-    </Link>
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <Link href="/practice" className={cn(buttonVariants({ size: "xl" }), "w-full sm:w-auto")}>
+        Start practising
+        <ArrowRight data-icon="inline-end" />
+      </Link>
+      {review.due > 0 && (
+        <Link href="/practice" className={cn(buttonVariants({ variant: "outline", size: "xl" }), "w-full bg-card sm:w-auto")}>
+          <RotateCcw data-icon="inline-start" />
+          {review.due} due for review
+        </Link>
+      )}
+    </div>
   );
 }
 

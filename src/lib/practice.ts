@@ -1,8 +1,8 @@
-import { and, asc, eq, inArray, sql, sum } from "drizzle-orm";
+import { and, asc, eq, inArray, lte, min, sql, sum } from "drizzle-orm";
 import { cacheLife } from "next/cache";
 
 import { getDb } from "@/db";
-import { attempts, practiceSessions, questions, subjects, topics } from "@/db/schema";
+import { attempts, practiceSessions, questions, reviewCards, subjects, topics } from "@/db/schema";
 import type { AttemptResult, Option } from "@/lib/scoring";
 import { cleanOptional, cleanText } from "@/lib/text";
 
@@ -31,6 +31,31 @@ export async function getTotalScore(userId: string): Promise<number> {
     .from(attempts)
     .where(eq(attempts.userId, userId));
   return row?.total ?? 0;
+}
+
+/** Questions due for review now, most overdue first. */
+export async function drawDueQuestionIds(userId: string, count: number): Promise<number[]> {
+  const rows = await getDb()
+    .select({ id: reviewCards.questionId })
+    .from(reviewCards)
+    .where(and(eq(reviewCards.userId, userId), lte(reviewCards.due, new Date())))
+    .orderBy(asc(reviewCards.due))
+    .limit(count);
+  return rows.map((r) => r.id);
+}
+
+/** How many questions are due now, and when the next one becomes due. */
+export async function getReviewStatus(userId: string): Promise<{ due: number; nextDueAt: Date | null; total: number }> {
+  const now = new Date();
+  const [row] = await getDb()
+    .select({
+      due: sql<number>`count(*) filter (where ${reviewCards.due} <= ${now})::int`,
+      total: sql<number>`count(*)::int`,
+      nextDueAt: min(sql<Date>`case when ${reviewCards.due} > ${now} then ${reviewCards.due} end`).mapWith((v) => (v ? new Date(v) : null)),
+    })
+    .from(reviewCards)
+    .where(eq(reviewCards.userId, userId));
+  return { due: row?.due ?? 0, total: row?.total ?? 0, nextDueAt: row?.nextDueAt ?? null };
 }
 
 export async function drawQuestionIds(
@@ -66,6 +91,8 @@ export interface RecordedAttempt {
   points: number;
   correctOption: Option;
   explanation: string | null;
+  /** When FSRS will bring this question back (null if unknown). */
+  nextReviewAt?: Date | null;
 }
 
 /**
@@ -119,9 +146,11 @@ export async function getSessionForUser(sessionId: string, userId: string) {
       points: attempts.points,
       correctOption: questions.correctOption,
       explanation: questions.explanation,
+      nextReviewAt: reviewCards.due,
     })
     .from(attempts)
     .innerJoin(questions, eq(questions.id, attempts.questionId))
+    .leftJoin(reviewCards, and(eq(reviewCards.userId, attempts.userId), eq(reviewCards.questionId, attempts.questionId)))
     .where(eq(attempts.sessionId, sessionId));
   const done = doneRaw.map((a) => ({ ...a, explanation: cleanOptional(a.explanation) }));
 

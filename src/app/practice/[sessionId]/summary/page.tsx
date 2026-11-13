@@ -1,4 +1,4 @@
-import { ChevronRight, CircleCheck, CircleMinus, CircleX, Clock, Target } from "lucide-react";
+import { ChevronRight, CircleCheck, CircleMinus, CircleX, Clock, RotateCcw, Target } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -11,6 +11,7 @@ import { requireUserId } from "@/lib/current-user";
 import { formatDuration, formatPercent, formatScore } from "@/lib/format";
 import { getSessionForUser } from "@/lib/practice";
 import { MARKS, summarise, type AttemptResult } from "@/lib/scoring";
+import { describeNextReview } from "@/lib/srs";
 import { cn } from "@/lib/utils";
 
 import { startSession } from "../../actions";
@@ -46,6 +47,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
   const unanswered = n - data.attempts.length;
   const elapsed = (data.session.endedAt ?? new Date()).getTime() - data.session.startedAt.getTime();
   const byQuestion = new Map(data.attempts.map((a) => [a.questionId, a]));
+  const now = new Date();
   const subjectName = data.session.subjectId === null ? null : (data.questions[0]?.subject ?? null);
 
   const counts: Record<AttemptResult, number> = { correct: s.correct, wrong: s.wrong, skipped: s.skipped };
@@ -61,8 +63,8 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
       <section className="animate-rise rounded-2xl border bg-card p-6 shadow-card sm:p-8">
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-            <SubjectIcon name={subjectName} className="size-3.5" />
-            {subjectName ? subjectLabel(subjectName) : "All subjects"}
+            {data.session.kind === "review" ? <RotateCcw className="size-3.5" aria-hidden /> : <SubjectIcon name={subjectName} className="size-3.5" />}
+            {data.session.kind === "review" ? "Review" : subjectName ? subjectLabel(subjectName) : "All subjects"}
             {data.topicName && <span className="text-muted-foreground">· {data.topicName}</span>}
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs">
@@ -111,6 +113,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
 
         <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
           <form action={startSession} className="sm:flex-none">
+            <input type="hidden" name="kind" value={data.session.kind} />
             <input type="hidden" name="subjectId" value={data.session.subjectId ?? "all"} />
             {data.session.topicId !== null && <input type="hidden" name="topicId" value={data.session.topicId} />}
             <input type="hidden" name="count" value={data.session.questionCount} />
@@ -143,6 +146,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
                         <span className="mt-1 block text-xs text-muted-foreground">
                           {a.selectedOption ? `You: ${a.selectedOption}` : "Skipped"} · Answer: {a.correctOption} ·{" "}
                           {formatScore(a.points)}
+                          {a.nextReviewAt && <> · Next review {describeNextReview(a.nextReviewAt, now)}</>}
                         </span>
                       )}
                     </span>

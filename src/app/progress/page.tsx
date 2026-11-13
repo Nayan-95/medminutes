@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireUserId } from "@/lib/current-user";
 import { formatPercent, formatScore } from "@/lib/format";
 import { getProgress, MIN_ATTEMPTED_TO_RANK } from "@/lib/progress";
+import { getReviewStatus } from "@/lib/practice";
+import { ReviewBanner } from "@/components/review-banner";
 import { APP_TIME_ZONE } from "@/lib/streak";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +69,7 @@ function Section({ title, subtitle, children, className }: { title: string; subt
 async function Dashboard() {
   await connection();
   const userId = await requireUserId("/progress");
-  const p = await getProgress(userId);
+  const [p, review] = await Promise.all([getProgress(userId), getReviewStatus(userId)]);
   const o = p.overview;
 
   if (o.attempted + o.skipped === 0) {
@@ -93,6 +95,7 @@ async function Dashboard() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ReviewBanner {...review} now={new Date()} />
       {/* Headline tiles */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tile label="Total score" value={formatScore(o.points)} note={`${o.completedSessions} sessions completed`} icon={Trophy} testId="tile-total" />
@@ -150,6 +153,7 @@ async function Dashboard() {
                     </span>
                   </span>
                   <form action={startSession}>
+                    <input type="hidden" name="kind" value="practice" />
                     <input type="hidden" name="subjectId" value="all" />
                     <input type="hidden" name="topicId" value={t.topicId} />
                     <input type="hidden" name="count" value={10} />

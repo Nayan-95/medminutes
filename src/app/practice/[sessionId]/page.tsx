@@ -18,7 +18,14 @@ async function Session({ params }: { params: PageProps<"/practice/[sessionId]">[
   if (!data) redirect("/practice");
   if (data.session.endedAt) redirect(`/practice/${sessionId}/summary`);
 
-  return <PracticeRunner sessionId={sessionId} questions={data.questions} initialAttempts={data.attempts} />;
+  return (
+    <PracticeRunner
+      sessionId={sessionId}
+      kind={data.session.kind}
+      questions={data.questions}
+      initialAttempts={data.attempts}
+    />
+  );
 }
 
 export default function PracticeSessionPage(props: PageProps<"/practice/[sessionId]">) {

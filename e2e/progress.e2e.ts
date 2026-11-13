@@ -9,6 +9,7 @@ const OTHER: Record<string, string> = { A: "B", B: "C", C: "D", D: "A" };
 async function seedHistory() {
   return withDb(async (db) => {
     await db.query("delete from practice_sessions where user_id = $1", [E2E_USER.id]);
+    await db.query("delete from review_cards where user_id = $1", [E2E_USER.id]);
     const { rows: qs } = await db.query<{ id: number; correct_option: string; topic_id: number }>(
       `select q.id, q.correct_option, q.topic_id
          from questions q join subjects s on s.id = q.subject_id

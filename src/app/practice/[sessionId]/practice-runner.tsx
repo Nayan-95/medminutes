@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CircleCheck, CircleMinus, CircleX, Flag, LoaderCircle, Timer, X } from "lucide-react";
+import { ArrowRight, CalendarClock, CircleCheck, CircleMinus, CircleX, Flag, LoaderCircle, RotateCcw, Timer, X } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
@@ -11,12 +11,14 @@ import { Kbd } from "@/components/ui/kbd";
 import { formatScore } from "@/lib/format";
 import type { PracticeQuestion, RecordedAttempt } from "@/lib/practice";
 import { OPTIONS, type AttemptResult, type Option } from "@/lib/scoring";
+import { describeNextReview } from "@/lib/srs";
 import { cn } from "@/lib/utils";
 
 import { finishSession, submitAnswer } from "../actions";
 
 interface Props {
   sessionId: string;
+  kind: "practice" | "review";
   questions: PracticeQuestion[];
   initialAttempts: RecordedAttempt[];
 }
@@ -60,7 +62,7 @@ function QuestionTimer({ running, resetKey }: { running: boolean; resetKey: numb
   );
 }
 
-export function PracticeRunner({ sessionId, questions, initialAttempts }: Props) {
+export function PracticeRunner({ sessionId, kind, questions, initialAttempts }: Props) {
   const [attempts, setAttempts] = useState(() => new Map(initialAttempts.map((a) => [a.questionId, a])));
   const [index, setIndex] = useState(() => {
     const done = new Set(initialAttempts.map((a) => a.questionId));
@@ -155,6 +157,12 @@ export function PracticeRunner({ sessionId, questions, initialAttempts }: Props)
           >
             <X />
           </Link>
+          {kind === "review" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand px-2 py-0.5 text-xs font-medium text-brand-foreground" data-testid="review-chip">
+              <RotateCcw className="size-3" aria-hidden />
+              Review
+            </span>
+          )}
           <span className="text-sm font-medium tabular-nums" data-testid="question-counter">
             Question {index + 1} <span className="text-muted-foreground">of {questions.length}</span>
           </span>
@@ -262,6 +270,12 @@ export function PracticeRunner({ sessionId, questions, initialAttempts }: Props)
                 {attempt.result !== "correct" && (
                   <span className="text-sm text-muted-foreground">
                     Answer: <span className="font-semibold text-foreground">{attempt.correctOption}</span>
+                  </span>
+                )}
+                {attempt.nextReviewAt && (
+                  <span className="inline-flex items-center gap-1 text-sm text-muted-foreground sm:ml-auto" data-testid="next-review">
+                    <CalendarClock className="size-3.5" aria-hidden />
+                    You&apos;ll see this again {describeNextReview(new Date(attempt.nextReviewAt), new Date())}
                   </span>
                 )}
               </div>

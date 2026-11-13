@@ -22,6 +22,8 @@ async function feedback(page: Page): Promise<{ result: string; points: number }>
 }
 
 test("a full 10-question session scores +4 / −1 / 0 and updates totals", async ({ page }) => {
+  // Long flows; local runs talk to a remote database (~300 ms per round trip from India).
+  test.setTimeout(120_000);
   await page.goto("/");
   const totalBefore = await headerTotal(page);
 

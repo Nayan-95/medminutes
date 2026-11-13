@@ -16,6 +16,7 @@ Browser ──► Next.js (Vercel) ──► Postgres (Neon)
 ```
 - `attempts` is an append-only log and the single source of truth for scores ([ADR 0002](docs/adr/0002-attempts-log-source-of-truth.md)).
 - Marking rules are enforced in both application code and a database check constraint.
+- Spaced repetition: FSRS (`ts-fsrs`) schedules every answered question; `review_cards` is derived from `attempts` and rebuildable ([ADR 0004](docs/adr/0004-spaced-repetition-fsrs.md)).
 
 ## Getting started
 Prerequisites: Node 22 (`.nvmrc`), [uv](https://docs.astral.sh/uv/), a free [Neon](https://neon.tech) database.
@@ -47,6 +48,7 @@ Release/Release_Dev ──(develop here; CI on every push)──► merge ──
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:studio` | Browse the database |
 | `npm run db:import` | Import MedMCQA (`--dry-run`, `--limit N`) |
+| `npm run srs:rebuild` | Rebuild FSRS review cards from the attempts log (`--dry-run`) |
 
 ## Project layout
 ```

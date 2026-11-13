@@ -31,6 +31,7 @@ export default async function globalSetup() {
     );
     // Start every run from a clean slate.
     await db.query("delete from practice_sessions where user_id = $1", [E2E_USER.id]);
+    await db.query("delete from review_cards where user_id = $1", [E2E_USER.id]);
   } finally {
     await db.end();
   }

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   check,
+  doublePrecision,
   index,
   integer,
   pgEnum,
@@ -16,6 +17,7 @@ import {
 
 export const optionEnum = pgEnum("option", ["A", "B", "C", "D"]);
 export const attemptResultEnum = pgEnum("attempt_result", ["correct", "wrong", "skipped"]);
+export const sessionKindEnum = pgEnum("session_kind", ["practice", "review"]);
 
 // ---------------------------------------------------------------------------
 // Content
@@ -115,6 +117,8 @@ export const practiceSessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    /** "practice" draws new random questions; "review" draws questions due for spaced repetition. */
+    kind: sessionKindEnum("kind").notNull().default("practice"),
     /** Optional filters the user picked; null means "all". */
     subjectId: integer("subject_id").references(() => subjects.id),
     topicId: integer("topic_id").references(() => topics.id),
@@ -165,5 +169,39 @@ export const attempts = pgTable(
        or (${t.result} = 'wrong' and ${t.points} = -1 and ${t.selectedOption} is not null)
        or (${t.result} = 'skipped' and ${t.points} = 0 and ${t.selectedOption} is null)`,
     ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Spaced repetition (FSRS). Derived from `attempts`; rebuildable by replaying
+// them (scripts/rebuild-review-cards.ts). See docs/adr/0004.
+// ---------------------------------------------------------------------------
+
+export const reviewCards = pgTable(
+  "review_cards",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    due: timestamp("due", { withTimezone: true }).notNull(),
+    stability: doublePrecision("stability").notNull(),
+    difficulty: doublePrecision("difficulty").notNull(),
+    elapsedDays: integer("elapsed_days").notNull().default(0),
+    scheduledDays: integer("scheduled_days").notNull(),
+    learningSteps: integer("learning_steps").notNull().default(0),
+    reps: integer("reps").notNull(),
+    lapses: integer("lapses").notNull(),
+    /** ts-fsrs State: 0 New, 1 Learning, 2 Review, 3 Relearning. */
+    state: smallint("state").notNull(),
+    lastReview: timestamp("last_review", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.questionId] }),
+    // "What's due for this user?" is the hot query.
+    index("review_cards_user_due_idx").on(t.userId, t.due),
   ],
 );
