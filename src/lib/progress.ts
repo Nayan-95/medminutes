@@ -121,11 +121,13 @@ export async function getProgress(userId: string) {
       .limit(30),
 
     db
-      .selectDistinct({
+      .select({
         day: sql<string>`to_char(${attempts.createdAt} at time zone ${APP_TIME_ZONE}, 'YYYY-MM-DD')`,
+        count: sql<number>`count(*)::int`,
       })
       .from(attempts)
-      .where(and(eq(attempts.userId, userId), isNotNull(attempts.createdAt))),
+      .where(and(eq(attempts.userId, userId), isNotNull(attempts.createdAt)))
+      .groupBy(sql`1`),
 
     db
       .select({ n: sql<number>`count(*)::int` })
@@ -186,6 +188,8 @@ export async function getProgress(userId: string) {
     /** Oldest first, completed sessions only. */
     trend: completed.slice(0, 20).reverse(),
     recent: sessions.slice(0, 8),
+    /** Questions answered per IST day (YYYY-MM-DD), for the heatmap. */
+    activity: new Map(dayRows.map((r) => [r.day, r.count])),
   };
 }
 

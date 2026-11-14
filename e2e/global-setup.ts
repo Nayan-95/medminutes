@@ -25,8 +25,9 @@ export default async function globalSetup() {
   await db.connect();
   try {
     await db.query(
-      `insert into users (id, name, email) values ($1, $2, $3)
-       on conflict (id) do nothing`,
+      // Hidden from the leaderboard so real users never see the test account (it still sees itself).
+      `insert into users (id, name, email, leaderboard_hidden) values ($1, $2, $3, true)
+       on conflict (id) do update set leaderboard_hidden = true`,
       [E2E_USER.id, E2E_USER.name, E2E_USER.email],
     );
     // Start every run from a clean slate.

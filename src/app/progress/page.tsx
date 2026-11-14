@@ -12,11 +12,12 @@ import { formatPercent, formatScore } from "@/lib/format";
 import { getProgress, MIN_ATTEMPTED_TO_RANK } from "@/lib/progress";
 import { getReviewStatus } from "@/lib/practice";
 import { ReviewBanner } from "@/components/review-banner";
-import { APP_TIME_ZONE } from "@/lib/streak";
+import { APP_TIME_ZONE, dayKey } from "@/lib/streak";
 import { cn } from "@/lib/utils";
 
 import { startSession } from "../practice/actions";
 import { StartButton } from "../practice/start-button";
+import { ActivityHeatmap } from "./activity-heatmap";
 import { ScoreTrend } from "./score-trend";
 
 const when = new Intl.DateTimeFormat("en-IN", {
@@ -109,6 +110,8 @@ async function Dashboard() {
           testId="tile-streak"
         />
       </div>
+
+      <ActivityHeatmap activity={p.activity} today={dayKey(new Date())} streak={o.streak} />
 
       <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
         {/* Subjects: meter list, weakest first */}

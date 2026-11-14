@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartColumn, LogOut, Play } from "lucide-react";
+import { ChartColumn, LogOut, Play, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useTransition } from "react";
 
@@ -66,6 +66,10 @@ export function UserMenu({
           <DropdownMenuItem render={<Link href="/progress" />}>
             <ChartColumn />
             Progress
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/leaderboard" />}>
+            <Trophy />
+            Leaderboard
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

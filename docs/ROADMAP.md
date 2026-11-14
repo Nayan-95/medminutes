@@ -9,7 +9,8 @@
 | 1 | MCQ practice with NEET PG marking (+4 / −1 / 0) | A signed-in user can finish a session and see their score | ✅ Shipped |
 | 2 | Progress dashboard | Total score, accuracy by subject and topic, history | ✅ Shipped |
 | 3 | Spaced repetition (FSRS via `ts-fsrs`) | Wrong or skipped questions come back on a "due today" queue | ✅ Shipped |
-| 3.5 | Smart mix: sessions steer silently toward weak topics (ADR 0005) | Weak topics, coverage and random picks, interleaved, aimed at 75% success | 🟡 On `Release/Release_Dev` |
+| 3.5 | Smart mix: sessions steer silently toward weak topics (ADR 0005) | Weak topics, coverage and random picks, interleaved, aimed at 75% success | ✅ Shipped |
+| 3.6 | Leaderboard (week / all time, per subject, relative views) and practice heatmap (ADR 0006) | Signed-in users see rankings; opt-out works | 🟡 On `Release/Release_Dev` |
 | 4 | Reminders: installable PWA + Web Push (email needs a paid domain, so deferred) | Daily "X cards due" reminder | ⬜ Planned, see docs/NEXT.md |
 | 5 | Exam-date countdown | Low-recall topics are prioritised as the exam nears | ⬜ |
 | 6 | `.apkg` import, AI card generation (your own API key) | — | ⬜ |

@@ -50,6 +50,11 @@ test("progress shows totals, subject accuracy, weak topics and trend", async ({ 
   await expect(page.getByTestId("tile-accuracy").locator("[data-slot=value]")).toHaveText("67%");
   await expect(page.getByTestId("tile-streak").locator("[data-slot=value]")).toHaveText("1 day");
 
+  // Heatmap: today's square is shaded (6 answers → level 1) and the summary counts them.
+  const heatmap = page.getByTestId("activity-heatmap");
+  await expect(heatmap).toContainText(/6\s*questions on\s*1\s*day/);
+  await expect(heatmap.locator("[data-level='1']")).toHaveCount(1);
+
   const anatomy = page.getByTestId("subject-Anatomy");
   await expect(anatomy).toContainText("67%");
   await expect(anatomy).toContainText("4/6");

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   doublePrecision,
   index,
@@ -80,6 +81,8 @@ export const users = pgTable("users", {
   email: text("email").unique(),
   emailVerified: timestamp("email_verified", { mode: "date", withTimezone: true }),
   image: text("image"),
+  /** Opt-out: hide this user from other people's leaderboards (they still see their own rank). */
+  leaderboardHidden: boolean("leaderboard_hidden").notNull().default(false),
 });
 
 /** Links a user to a sign-in provider account (e.g. their Google account). */

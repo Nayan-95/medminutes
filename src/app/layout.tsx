@@ -61,6 +61,9 @@ async function HeaderAccount() {
         <Link href="/progress" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
           Progress
         </Link>
+        <Link href="/leaderboard" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
+          Leaderboard
+        </Link>
       </nav>
       <span title="Lifetime score: +4 correct, −1 wrong, 0 skipped" data-testid="total-score">
         <ScorePill value={total} label="Total" />
