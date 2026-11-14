@@ -1,9 +1,30 @@
 # Where we are and what's next
 
-_Last updated: 13 Nov 2026._
+_Last updated: 14 Nov 2026._
 
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition. Privacy and terms pages are live.
+
+## Built on `Release/Release_Dev`, not merged yet
+- **Smart mix (ADR 0005, research/03-recommendation-engine.md).** Practice sessions steer silently toward weak topics:
+  - 30% due reviews, or 50% when the backlog is 30 or more
+  - weak topics picked by Thompson sampling
+  - 20% unseen topics, 10% random
+  - new questions aimed at 75% predicted success
+  - interleaved, with at most 2 likely-wrong questions in a row
+  - reviews ordered lowest recall first
+  - each session logs `policy` and `question_slots`
+  - the dashboard's "Weak topics" list uses the same estimate
+- Migration 0004 has been applied to the shared DB. It is additive and needs no `srs:rebuild`.
+
+## Smart mix follow-ups (from the research, in order)
+1. After about 2 weeks of real use, check the logs: accuracy by slot (`weak` vs `random`), and whether weak-topic accuracy rises. Tune `SMART_MIX` and bump `policy`.
+2. **Exam date** per user: cap intervals at the days left and raise retention near the exam. This needs an ADR and `srs:rebuild`.
+3. Optional **"sure / guessed"** tap after answering, where a guessed-correct answer counts as weak.
+4. **Elo** ability and difficulty, once questions have about 100 answers each.
+5. **Near-duplicate grouping** of MedMCQA stems (`pg_trgm` or a nightly job).
+6. **Fit FSRS parameters** on pooled data in a free GitHub Action. Adopt only if it beats the defaults on a held-out set.
+7. A/B test of the smart mix against random selection, split by user ID hash.
 
 ## Open decisions (ask the owner)
 1. **AI integration, decided before more add-on features** (see `research/02-ai-features.md`):

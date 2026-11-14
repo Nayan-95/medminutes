@@ -1,4 +1,15 @@
-import { createEmptyCard, fsrs, generatorParameters, Rating, type Card, type Grade, type State } from "ts-fsrs";
+import {
+  computeDecayFactor,
+  createEmptyCard,
+  default_w,
+  forgetting_curve,
+  fsrs,
+  generatorParameters,
+  Rating,
+  type Card,
+  type Grade,
+  type State,
+} from "ts-fsrs";
 
 import type { AttemptResult } from "./scoring";
 
@@ -78,6 +89,17 @@ export function fromRow(row: CardRow): Card {
     state: row.state as State,
     last_review: row.lastReview ?? undefined,
   };
+}
+
+/**
+ * FSRS-6 forgetting curve, R = (1 + factor · t / S)^decay, with the default
+ * weights our scheduler uses. Exposed as constants so SQL can sort by it.
+ */
+export const FORGETTING_CURVE = computeDecayFactor(default_w);
+
+/** Chance the user still remembers a card `elapsedDays` after its last review. */
+export function retrievability(stability: number, elapsedDays: number): number {
+  return forgetting_curve(default_w, Math.max(0, elapsedDays), stability);
 }
 
 /** "tomorrow", "in 3 days", "in 2 months" — for "you'll see this again …". */

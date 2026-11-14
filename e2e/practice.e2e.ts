@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { withDb } from "./db";
+
 /** Reads "+12" / "−3" / "0" (true minus sign) as a number. */
 function parseScore(text: string): number {
   const n = Number(text.trim().replace("−", "-").replace("+", ""));
@@ -37,6 +39,25 @@ test("a full 10-question session scores +4 / −1 / 0 and updates totals", async
   await expect(ten).toBeChecked();
   await page.getByRole("button", { name: "Start session" }).click();
   await expect(page).toHaveURL(/\/practice\/[0-9a-f-]{36}$/);
+
+  // The smart mix logs its policy and why each question was picked, all within Anatomy.
+  const sessionId = page.url().split("/").at(-1)!;
+  const logged = await withDb(async (db) => {
+    const { rows } = await db.query(
+      `select s.policy, s.question_slots as slots, array_agg(distinct sub.name) as subjects
+         from practice_sessions s
+         join questions q on q.id = any(s.question_ids)
+         join subjects sub on sub.id = q.subject_id
+        where s.id = $1
+        group by s.id`,
+      [sessionId],
+    );
+    return rows[0] as { policy: string; slots: string[]; subjects: string[] };
+  });
+  expect(logged.policy).toBe("smart-v1");
+  expect(logged.slots).toHaveLength(10);
+  for (const slot of logged.slots) expect(["review", "weak", "coverage", "random", "fill"]).toContain(slot);
+  expect(logged.subjects).toEqual(["Anatomy"]);
 
   const results: { result: string; points: number }[] = [];
   const options = page.getByRole("radiogroup", { name: "Options" }).getByRole("radio");

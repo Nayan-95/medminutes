@@ -2,6 +2,8 @@ import { and, desc, eq, isNotNull, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
 import { attempts, practiceSessions, questions, subjects, topics } from "@/db/schema";
+import { SMART_MIX, unitBeliefs, unitKey } from "@/lib/recommend";
+import { getUnitStats } from "@/lib/smart-mix";
 import { APP_TIME_ZONE, computeStreak, dayKey } from "@/lib/streak";
 
 /** Rank a subject or topic only once there is enough signal. */
@@ -31,6 +33,8 @@ export interface TopicProgress {
   wrong: number;
   attempted: number;
   accuracy: number | null;
+  /** Estimated accuracy on new questions in this topic (shrunk first-attempt accuracy). */
+  estimate: number;
 }
 
 export interface SessionPoint {
@@ -54,7 +58,9 @@ const accuracy = (correct: number, wrong: number) => (correct + wrong === 0 ? nu
 export async function getProgress(userId: string) {
   const db = getDb();
 
-  const [totals, subjectRows, topicRows, sessionRows, dayRows, completedRows] = await Promise.all([
+  const [units, totals, subjectRows, topicRows, sessionRows, dayRows, completedRows] = await Promise.all([
+    getUnitStats(userId),
+
     db
       .select({ correct: correctCount, wrong: wrongCount, skipped: skippedCount, points: pointsSum })
       .from(attempts)
@@ -80,6 +86,7 @@ export async function getProgress(userId: string) {
         topicId: topics.id,
         topic: topics.name,
         subject: subjects.name,
+        subjectId: subjects.id,
         correct: correctCount,
         wrong: wrongCount,
       })
@@ -88,7 +95,7 @@ export async function getProgress(userId: string) {
       .innerJoin(topics, eq(topics.id, questions.topicId))
       .innerJoin(subjects, eq(subjects.id, topics.subjectId))
       .where(eq(attempts.userId, userId))
-      .groupBy(topics.id, topics.name, subjects.name)
+      .groupBy(topics.id, topics.name, subjects.name, subjects.id)
       .having(sql`count(*) filter (where ${attempts.result} = 'wrong') > 0`),
 
     db
@@ -139,9 +146,22 @@ export async function getProgress(userId: string) {
       return b.attempted - a.attempted;
     });
 
+  // Same estimate the smart mix uses: first answers only, shrunk toward the
+  // subject so one unlucky answer doesn't flag a topic (lib/recommend.ts).
+  const estimate = new Map(unitBeliefs(units).map((u) => [u.key, u.mean]));
   const weakTopics: TopicProgress[] = topicRows
-    .map((r) => ({ ...r, topic: displayName(r.topic), attempted: r.correct + r.wrong, accuracy: accuracy(r.correct, r.wrong) }))
-    .sort((a, b) => b.wrong - a.wrong || (a.accuracy ?? 0) - (b.accuracy ?? 0))
+    .map((r) => ({
+      topicId: r.topicId,
+      topic: displayName(r.topic),
+      subject: r.subject,
+      correct: r.correct,
+      wrong: r.wrong,
+      attempted: r.correct + r.wrong,
+      accuracy: accuracy(r.correct, r.wrong),
+      estimate: estimate.get(unitKey(r.subjectId, r.topicId)) ?? SMART_MIX.baselineAccuracy,
+    }))
+    .filter((t) => t.estimate < SMART_MIX.targetSuccess)
+    .sort((a, b) => a.estimate - b.estimate || b.wrong - a.wrong)
     .slice(0, 5);
 
   const sessions: SessionPoint[] = sessionRows.map((r) => ({ ...r, topic: r.topic ? displayName(r.topic) : null }));

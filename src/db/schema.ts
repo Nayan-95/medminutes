@@ -125,6 +125,10 @@ export const practiceSessions = pgTable(
     questionCount: smallint("question_count").notNull(),
     /** The questions drawn for this session, in the order they are shown. */
     questionIds: integer("question_ids").array().notNull(),
+    /** Which selection policy built the session (e.g. "smart-v1", "review-v1"); null for older sessions. */
+    policy: text("policy"),
+    /** Why each question was chosen ("review" | "weak" | "coverage" | "random" | "fill"), aligned with questionIds. */
+    questionSlots: text("question_slots").array(),
     startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
     endedAt: timestamp("ended_at", { withTimezone: true }),
   },
@@ -163,6 +167,8 @@ export const attempts = pgTable(
     unique("attempts_session_question_uq").on(t.sessionId, t.questionId),
     index("attempts_user_created_idx").on(t.userId, t.createdAt),
     index("attempts_user_question_idx").on(t.userId, t.questionId),
+    // Per-question % correct across all users (item difficulty for the smart mix).
+    index("attempts_question_idx").on(t.questionId),
     check(
       "attempts_scoring_ck",
       sql`(${t.result} = 'correct' and ${t.points} = 4 and ${t.selectedOption} is not null)

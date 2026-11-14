@@ -8,8 +8,10 @@ import { z } from "zod";
 import { getDb } from "@/db";
 import { attempts, practiceSessions, questions, reviewCards, topics } from "@/db/schema";
 import { requireUserId } from "@/lib/current-user";
-import { drawDueQuestionIds, drawQuestionIds, QUESTION_COUNTS, type RecordedAttempt } from "@/lib/practice";
+import { drawDueQuestionIds, QUESTION_COUNTS, type RecordedAttempt } from "@/lib/practice";
+import { SMART_MIX } from "@/lib/recommend";
 import { OPTIONS, scoreAnswer } from "@/lib/scoring";
+import { drawSmartMix } from "@/lib/smart-mix";
 import { fromRow, schedule, toRow } from "@/lib/srs";
 import { cleanOptional } from "@/lib/text";
 
@@ -45,7 +47,14 @@ export async function startSession(formData: FormData) {
     if (questionIds.length === 0) redirect("/practice");
     const [session] = await db
       .insert(practiceSessions)
-      .values({ userId, kind: "review", questionCount: questionIds.length, questionIds })
+      .values({
+        userId,
+        kind: "review",
+        questionCount: questionIds.length,
+        questionIds,
+        policy: "review-v1",
+        questionSlots: questionIds.map(() => "review"),
+      })
       .returning({ id: practiceSessions.id });
     redirect(`/practice/${session.id}`);
   }
@@ -63,12 +72,20 @@ export async function startSession(formData: FormData) {
     subjectId = topic.subjectId;
   }
 
-  const questionIds = await drawQuestionIds({ subjectId, topicId }, input.count);
+  const { ids: questionIds, slots } = await drawSmartMix(userId, { subjectId, topicId }, input.count);
   if (questionIds.length === 0) throw new Error("No questions found for that subject.");
 
   const [session] = await db
     .insert(practiceSessions)
-    .values({ userId, subjectId, topicId, questionCount: questionIds.length, questionIds })
+    .values({
+      userId,
+      subjectId,
+      topicId,
+      questionCount: questionIds.length,
+      questionIds,
+      policy: SMART_MIX.policy,
+      questionSlots: slots,
+    })
     .returning({ id: practiceSessions.id });
 
   redirect(`/practice/${session.id}`);

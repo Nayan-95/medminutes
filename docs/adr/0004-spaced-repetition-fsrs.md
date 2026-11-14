@@ -13,7 +13,7 @@ Questions answered once are forgotten. Spaced repetition schedules each question
 - **Storage:** `review_cards` (one row per user × question) holds the FSRS state. It is **derived** from `attempts`.
 - **Consistency:** each answer inserts its `attempts` row and updates its card **in one transaction**. A repeat submission (double click) doesn't reschedule twice.
 - **Rebuildable:** `npm run srs:rebuild` replays all attempts in order and recreates every card. Unit tests check replay produces exactly the same card as answering step by step. Use it after changing scheduler settings or upgrading ts-fsrs.
-- **Review sessions:** `practice_sessions.kind = 'review'` draws due cards (most overdue first, up to 20). Marking is the same as practice, and review answers count toward the lifetime score like any other attempt.
+- **Review sessions:** `practice_sessions.kind = 'review'` draws due cards (up to 20; lowest retrievability first since ADR 0005, previously most overdue first). Marking is the same as practice, and review answers count toward the lifetime score like any other attempt.
 
 ## Consequences
 - Every answered question joins the user's review deck; the deck grows with practice.

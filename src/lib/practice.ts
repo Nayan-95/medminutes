@@ -1,9 +1,10 @@
-import { and, asc, eq, inArray, lte, min, sql, sum } from "drizzle-orm";
+import { and, asc, eq, inArray, min, sql, sum } from "drizzle-orm";
 import { cacheLife } from "next/cache";
 
 import { getDb } from "@/db";
 import { attempts, practiceSessions, questions, reviewCards, subjects, topics } from "@/db/schema";
 import type { AttemptResult, Option } from "@/lib/scoring";
+import { drawDueCards } from "@/lib/smart-mix";
 import { cleanOptional, cleanText } from "@/lib/text";
 
 export const QUESTION_COUNTS = [10, 20, 50] as const;
@@ -33,15 +34,9 @@ export async function getTotalScore(userId: string): Promise<number> {
   return row?.total ?? 0;
 }
 
-/** Questions due for review now, most overdue first. */
+/** Questions due for review now, the ones you're most likely to have forgotten first. */
 export async function drawDueQuestionIds(userId: string, count: number): Promise<number[]> {
-  const rows = await getDb()
-    .select({ id: reviewCards.questionId })
-    .from(reviewCards)
-    .where(and(eq(reviewCards.userId, userId), lte(reviewCards.due, new Date())))
-    .orderBy(asc(reviewCards.due))
-    .limit(count);
-  return rows.map((r) => r.id);
+  return (await drawDueCards(userId, count)).map((r) => r.questionId);
 }
 
 /** How many questions are due now, and when the next one becomes due. */
@@ -56,25 +51,6 @@ export async function getReviewStatus(userId: string): Promise<{ due: number; ne
     .from(reviewCards)
     .where(eq(reviewCards.userId, userId));
   return { due: row?.due ?? 0, total: row?.total ?? 0, nextDueAt: row?.nextDueAt ?? null };
-}
-
-export async function drawQuestionIds(
-  filter: { subjectId: number | null; topicId: number | null },
-  count: number,
-): Promise<number[]> {
-  const where =
-    filter.topicId !== null
-      ? eq(questions.topicId, filter.topicId)
-      : filter.subjectId !== null
-        ? eq(questions.subjectId, filter.subjectId)
-        : undefined;
-  const rows = await getDb()
-    .select({ id: questions.id })
-    .from(questions)
-    .where(where)
-    .orderBy(sql`random()`)
-    .limit(count);
-  return rows.map((r) => r.id);
 }
 
 export interface PracticeQuestion {
@@ -126,16 +102,16 @@ export async function getSessionForUser(sessionId: string, userId: string) {
   const byId = new Map(rows.map((r) => [r.id, r]));
   const ordered: PracticeQuestion[] = session.questionIds.flatMap((id) => {
     const r = byId.get(id);
-    return r
-      ? [
-          {
-            id: r.id,
-            question: cleanText(r.question),
-            options: { A: cleanText(r.a), B: cleanText(r.b), C: cleanText(r.c), D: cleanText(r.d) },
-            subject: r.subject,
-          },
-        ]
-      : [];
+    if (!r) return [];
+    const options = { A: cleanText(r.a), B: cleanText(r.b), C: cleanText(r.c), D: cleanText(r.d) };
+    return [
+      {
+        id: r.id,
+        question: cleanText(r.question),
+        options,
+        subject: r.subject,
+      },
+    ];
   });
 
   const doneRaw: RecordedAttempt[] = await db

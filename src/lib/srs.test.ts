@@ -1,7 +1,7 @@
 import { Rating, State } from "ts-fsrs";
 import { describe, expect, it } from "vitest";
 
-import { describeNextReview, fromRow, gradeFor, replay, schedule, toRow } from "./srs";
+import { describeNextReview, fromRow, gradeFor, replay, retrievability, schedule, scheduler, toRow } from "./srs";
 
 const T0 = new Date("2026-11-13T10:00:00Z");
 const days = (a: Date, b: Date) => (b.getTime() - a.getTime()) / 86_400_000;
@@ -76,5 +76,19 @@ describe("describeNextReview", () => {
     expect(describeNextReview(new Date("2026-11-14T10:00:00Z"), T0)).toBe("tomorrow");
     expect(describeNextReview(new Date("2026-11-27T10:00:00Z"), T0)).toBe("in 14 days");
     expect(describeNextReview(new Date("2027-03-13T10:00:00Z"), T0)).toBe("in 4 months");
+  });
+});
+
+describe("retrievability", () => {
+  it("matches ts-fsrs for a scheduled card", () => {
+    const card = schedule(null, "correct", T0);
+    const later = new Date(T0.getTime() + 5 * 86_400_000);
+    expect(retrievability(card.stability, 5)).toBeCloseTo(scheduler.get_retrievability(card, later, false), 6);
+  });
+
+  it("is 90% when a card falls due (S days after review) and falls with time", () => {
+    expect(retrievability(10, 10)).toBeCloseTo(0.9, 3);
+    expect(retrievability(10, 0)).toBe(1);
+    expect(retrievability(10, 30)).toBeLessThan(retrievability(10, 20));
   });
 });

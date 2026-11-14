@@ -139,9 +139,9 @@ async function Dashboard() {
         </Section>
 
         {/* Weak topics */}
-        <Section title="Weak topics" subtitle="Most wrong answers. Practise one to close the gap.">
+        <Section title="Weak topics" subtitle="Estimated from your first answers, weakest first. Practise one to close the gap.">
           {p.weakTopics.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No wrong answers yet. Nice.</p>
+            <p className="text-sm text-muted-foreground">No weak topics yet. Nice.</p>
           ) : (
             <ul className="flex flex-col divide-y" data-testid="weak-topics">
               {p.weakTopics.map((t) => (
