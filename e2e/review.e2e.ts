@@ -14,6 +14,7 @@ test("spaced repetition: answered questions come back when due", async ({ page }
   // 1. Practise: skip Q1 (→ Again), answer Q2. Each shows when it comes back.
   await page.goto("/practice");
   await expect(page.getByTestId("review-banner")).toHaveCount(0); // no cards yet
+  await page.locator("label", { has: page.getByRole("radio", { name: /^All subjects, / }) }).click();
   await page.getByRole("button", { name: "Start session" }).click();
   await expect(page).toHaveURL(/\/practice\/[0-9a-f-]{36}$/);
 

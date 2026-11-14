@@ -30,10 +30,14 @@ test("a full 10-question session scores +4 / −1 / 0 and updates totals", async
   const totalBefore = await headerTotal(page);
 
   await page.getByRole("link", { name: "Start practising" }).first().click();
+  // Step 2 (count and Start) only appears once a subject is picked.
+  await expect(page.getByTestId("setup-hint")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start session" })).toHaveCount(0);
   // Click the cards, as a user would; the radio inputs inside are visually hidden.
   const anatomy = page.getByRole("radio", { name: /^Anatomy, / });
   await page.locator("label", { has: anatomy }).click();
   await expect(anatomy).toBeChecked();
+  await expect(page.getByTestId("setup-step-2")).toContainText("Anatomy");
   const ten = page.locator('input[name="count"][value="10"]');
   await page.locator("label", { has: ten }).click();
   await expect(ten).toBeChecked();
