@@ -22,7 +22,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Your practice:</strong> the sessions you start, the answer you choose for each question (or
-          that you skipped), whether it was correct, the marks, and how long you took.
+          that you skipped), whether it was correct, the marks, and how long you took. In mock tests we also keep the
+          first answer you picked for each question and which questions you marked for review.
         </li>
       </ul>
 

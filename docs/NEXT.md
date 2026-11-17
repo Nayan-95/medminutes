@@ -1,9 +1,18 @@
 # Where we are and what's next
 
-_Last updated: 14 Nov 2026._
+_Last updated: 17 Nov 2026._
 
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition. Privacy and terms pages are live.
+
+## Mock tests (ADR 0007), on `Release/Release_Dev`, not merged
+- `/mock`: **Full mock** (NEET PG 2026: 180 questions, 5 sections × 36 questions × 42 min) and **Mini mock** (45 questions, 5 × 9 × 10.5 min, same 70 s pace).
+- Real exam rules: sections mix subjects, each section has its own timer, closed sections lock, no moving ahead early. Mark for review; marked-and-answered counts.
+- Answers autosave; the server refuses changes outside the open section (15 s grace). One running mock at a time. If time runs out while away, the mock is submitted the next time `/mock` or the exam page is opened.
+- On submit, opened questions become `attempts` (unanswered = skipped), so mocks count for the score, leaderboard, heatmap and FSRS. Never-opened questions are not recorded.
+- Result page: score, percentile among other mocks of the same format (shown from 10 others), negative-marking cost, changed answers (right → wrong etc.), marked-for-review accuracy, pace, by section, by subject (weakest first), filtered answer review.
+- Migration 0006 (`session_kind` gains `mock`; tables `mock_exams`, `mock_responses`) has been applied to the shared DB. Additive; no `srs:rebuild` needed.
+- Follow-ups: verify the 2027 NBEMS bulletin when it is out and update `MOCK_FORMATS`; consider a fixed weekly "Grand Test" (same questions for everyone, so percentiles compare like with like).
 
 ## Leaderboard and heatmap (ADR 0006)
 - `/leaderboard`:

@@ -40,6 +40,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
   const data = await getSessionForUser(sessionId, await requireUserId(`/practice/${sessionId}/summary`));
   // Missing, deleted or not yours: send to a fresh session instead of a dead-end 404.
   if (!data) redirect("/practice");
+  if (data.session.kind === "mock") redirect(`/mock/${sessionId}/result`);
 
   const s = summarise(data.attempts.map((a) => a.result));
   const n = data.questions.length;

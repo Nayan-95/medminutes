@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, CircleCheck, Keyboard, RotateCcw, Target } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardList, CircleCheck, Keyboard, RotateCcw, Target } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -28,6 +28,10 @@ async function CallToAction() {
       <Link href="/practice" className={cn(buttonVariants({ size: "xl" }), "w-full sm:w-auto")}>
         Start practising
         <ArrowRight data-icon="inline-end" />
+      </Link>
+      <Link href="/mock" className={cn(buttonVariants({ variant: "outline", size: "xl" }), "w-full bg-card sm:w-auto")}>
+        <ClipboardList data-icon="inline-start" />
+        Take a mock test
       </Link>
       {review.due > 0 && (
         <Link href="/practice" className={cn(buttonVariants({ variant: "outline", size: "xl" }), "w-full bg-card sm:w-auto")}>

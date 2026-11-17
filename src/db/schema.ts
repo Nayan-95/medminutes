@@ -18,7 +18,7 @@ import {
 
 export const optionEnum = pgEnum("option", ["A", "B", "C", "D"]);
 export const attemptResultEnum = pgEnum("attempt_result", ["correct", "wrong", "skipped"]);
-export const sessionKindEnum = pgEnum("session_kind", ["practice", "review"]);
+export const sessionKindEnum = pgEnum("session_kind", ["practice", "review", "mock"]);
 
 // ---------------------------------------------------------------------------
 // Content
@@ -120,7 +120,10 @@ export const practiceSessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    /** "practice" draws new random questions; "review" draws questions due for spaced repetition. */
+    /**
+     * "practice" draws new random questions; "review" draws questions due for spaced repetition;
+     * "mock" is a timed NEET PG mock exam (see mock_exams and docs/adr/0007).
+     */
     kind: sessionKindEnum("kind").notNull().default("practice"),
     /** Optional filters the user picked; null means "all". */
     subjectId: integer("subject_id").references(() => subjects.id),
@@ -213,4 +216,51 @@ export const reviewCards = pgTable(
     // "What's due for this user?" is the hot query.
     index("review_cards_user_due_idx").on(t.userId, t.due),
   ],
+);
+
+// ---------------------------------------------------------------------------
+// Mock exams (docs/adr/0007). A mock is a practice_sessions row of kind "mock"
+// plus the rows below. Answers can change until a section closes, so they live
+// in mock_responses; on submit the final answers are copied into `attempts`
+// (append-only, still the source of truth for scores and FSRS).
+// ---------------------------------------------------------------------------
+
+export const mockExams = pgTable(
+  "mock_exams",
+  {
+    sessionId: uuid("session_id")
+      .primaryKey()
+      .references(() => practiceSessions.id, { onDelete: "cascade" }),
+    /** "full" (180 questions, 5 × 42 min) or "mini" (45 questions, 5 × 10.5 min). */
+    format: text("format").notNull(),
+    sectionCount: smallint("section_count").notNull(),
+    sectionSize: smallint("section_size").notNull(),
+    sectionSeconds: integer("section_seconds").notNull(),
+  },
+  (t) => [
+    check("mock_exams_shape_ck", sql`${t.sectionCount} > 0 and ${t.sectionSize} > 0 and ${t.sectionSeconds} > 0`),
+  ],
+);
+
+export const mockResponses = pgTable(
+  "mock_responses",
+  {
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => practiceSessions.id, { onDelete: "cascade" }),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    /** Current answer; null when visited but not answered (or cleared). */
+    selectedOption: optionEnum("selected_option"),
+    /** The first option ever picked, to spot answers changed from right to wrong. */
+    firstOption: optionEnum("first_option"),
+    markedForReview: boolean("marked_for_review").notNull().default(false),
+    /** Total time the question was on screen. */
+    timeSpentMs: integer("time_spent_ms").notNull().default(0),
+    /** A row exists once the question has been opened, so its existence means "visited". */
+    visitedAt: timestamp("visited_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.sessionId, t.questionId] })],
 );

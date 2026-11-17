@@ -58,6 +58,9 @@ async function HeaderAccount() {
         <Link href="/practice" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
           Practice
         </Link>
+        <Link href="/mock" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
+          Mock test
+        </Link>
         <Link href="/progress" className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "text-muted-foreground")}>
           Progress
         </Link>

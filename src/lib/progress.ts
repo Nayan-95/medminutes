@@ -39,6 +39,7 @@ export interface TopicProgress {
 
 export interface SessionPoint {
   id: string;
+  kind: "practice" | "review" | "mock";
   startedAt: Date;
   endedAt: Date | null;
   subject: string | null;
@@ -101,6 +102,7 @@ export async function getProgress(userId: string) {
     db
       .select({
         id: practiceSessions.id,
+        kind: practiceSessions.kind,
         startedAt: practiceSessions.startedAt,
         endedAt: practiceSessions.endedAt,
         subject: subjects.name,
@@ -167,7 +169,8 @@ export async function getProgress(userId: string) {
     .slice(0, 5);
 
   const sessions: SessionPoint[] = sessionRows.map((r) => ({ ...r, topic: r.topic ? displayName(r.topic) : null }));
-  const completed = sessions.filter((s) => s.endedAt !== null);
+  // Mocks (up to 180 questions) would dwarf practice sessions on the chart; they have their own history on /mock.
+  const completed = sessions.filter((s) => s.endedAt !== null && s.kind !== "mock");
 
   return {
     overview: {

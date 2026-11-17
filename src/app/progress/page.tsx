@@ -176,7 +176,7 @@ async function Dashboard() {
             points={p.trend.map((s) => ({
               id: s.id,
               label: when.format(s.startedAt),
-              subject: s.topic ? `${subjectLabel(s.subject ?? "")} · ${s.topic}` : s.subject ? subjectLabel(s.subject) : "All subjects",
+              subject: s.kind === "mock" ? "Mock test" : s.topic ? `${subjectLabel(s.subject ?? "")} · ${s.topic}` : s.subject ? subjectLabel(s.subject) : "All subjects",
               points: s.points,
               correct: s.correct,
               wrong: s.wrong,
@@ -191,11 +191,13 @@ async function Dashboard() {
         <ul className="-my-3 flex flex-col divide-y" data-testid="recent-sessions">
           {p.recent.map((s) => {
             const done = s.endedAt !== null;
-            const name = s.topic ? `${subjectLabel(s.subject ?? "")} · ${s.topic}` : s.subject ? subjectLabel(s.subject) : "All subjects";
+            const mock = s.kind === "mock";
+            const name = mock ? "Mock test" : s.topic ? `${subjectLabel(s.subject ?? "")} · ${s.topic}` : s.subject ? subjectLabel(s.subject) : "All subjects";
+            const href = mock ? (done ? `/mock/${s.id}/result` : `/mock/${s.id}`) : done ? `/practice/${s.id}/summary` : `/practice/${s.id}`;
             return (
               <li key={s.id}>
                 <Link
-                  href={done ? `/practice/${s.id}/summary` : `/practice/${s.id}`}
+                  href={href}
                   className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-3 hover:bg-muted/50"
                 >
                   <SubjectIcon name={s.subject} className="size-4 shrink-0 text-muted-foreground" />

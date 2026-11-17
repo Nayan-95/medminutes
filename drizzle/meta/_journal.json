@@ -43,6 +43,13 @@
       "when": 1794639285916,
       "tag": "0005_leaderboard",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794939243701,
+      "tag": "0006_mock_exams",
+      "breakpoints": true
     }
   ]
 }

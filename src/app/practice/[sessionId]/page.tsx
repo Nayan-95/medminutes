@@ -16,6 +16,7 @@ async function Session({ params }: { params: PageProps<"/practice/[sessionId]">[
   const data = await getSessionForUser(sessionId, await requireUserId(`/practice/${sessionId}`));
   // Missing, deleted or not yours: send to a fresh session instead of a dead-end 404.
   if (!data) redirect("/practice");
+  if (data.session.kind === "mock") redirect(`/mock/${sessionId}`);
   if (data.session.endedAt) redirect(`/practice/${sessionId}/summary`);
 
   return (
