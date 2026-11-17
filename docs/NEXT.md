@@ -3,9 +3,9 @@
 _Last updated: 17 Nov 2026._
 
 ## Shipped (live on `main`)
-Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition. Privacy and terms pages are live.
+Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
 
-## Mock tests (ADR 0007), on `Release/Release_Dev`, not merged
+## Mock tests (ADR 0007), live
 - `/mock`: **Full mock** (NEET PG 2026: 180 questions, 5 sections × 36 questions × 42 min) and **Mini mock** (45 questions, 5 × 9 × 10.5 min, same 70 s pace).
 - Real exam rules: sections mix subjects, each section has its own timer, closed sections lock, no moving ahead early. Mark for review; marked-and-answered counts.
 - Answers autosave; the server refuses changes outside the open section (15 s grace). One running mock at a time. If time runs out while away, the mock is submitted the next time `/mock` or the exam page is opened.
