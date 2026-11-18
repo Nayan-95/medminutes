@@ -12,7 +12,7 @@
 | 3.5 | Smart mix: sessions steer silently toward weak topics (ADR 0005) | Weak topics, coverage and random picks, interleaved, aimed at 75% success | ✅ Shipped |
 | 3.6 | Leaderboard (week / all time, per subject, relative views) and practice heatmap (ADR 0006) | Signed-in users see rankings; opt-out works | ✅ Shipped |
 | 3.7 | Mock tests in the NEET PG 2026 pattern (ADR 0007): full (180 Q, 5 × 42 min) and mini (45 Q) | Timed sections, palette, mark for review, analysis and percentile | ✅ Shipped |
-| 3.8 | Report a question + owner review page (ADR 0008) | Students flag bad questions; the owner marks them fixed or dismissed | 🟡 Built, awaiting merge |
+| 3.8 | Report a question + owner review page (ADR 0008) | Students flag bad questions; the owner marks them fixed or dismissed | ✅ Shipped (e2e pending) |
 | 4 | Reminders: installable PWA + Web Push (email needs a paid domain, so deferred) | Daily "X cards due" reminder | ⬜ Planned, see docs/NEXT.md |
 | 5 | Exam-date countdown | Low-recall topics are prioritised as the exam nears | ⬜ |
 | 6 | `.apkg` import, AI card generation (your own API key) | — | ⬜ |

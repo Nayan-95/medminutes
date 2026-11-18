@@ -7,11 +7,12 @@ _Last updated: 18 Nov 2026._
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
 
-## Report a question (ADR 0008), on `Release/Release_Dev`, not yet merged
+## Report a question (ADR 0008), live since 18 Nov
 - "Report a problem" appears after an answer is revealed (practice feedback, mock answer review). Reason + optional note (≤ 500 chars). One report per user × question; reporting again reopens it.
 - `/admin/reports` (owner only): reports grouped by question, anonymous, with Mark fixed / Dismiss / Reopen. Admins come from the **`ADMIN_EMAILS`** env var; empty means nobody, so CI stays locked.
 - Migration 0007 (`question_reports` and two enums) has been applied to the shared DB. Additive; no `srs:rebuild`.
-- **Before merging:** the owner adds `ADMIN_EMAILS` to `.env.local` and to Vercel (Production).
+- **To do (owner):** add `ADMIN_EMAILS` to `.env.local` and to Vercel (Production), then redeploy. Until then `/admin/reports` is locked for everyone.
+- **Not yet verified in a browser:** local e2e (`e2e/report.e2e.ts`) could not run on 18 Nov because the Mac could not reach Neon. Run it, take screenshots, and check the live flow by hand.
 - Fixing an answer key doesn't re-mark old attempts (ADR 0002). Decide later whether to re-mark.
 
 ## Mock tests (ADR 0007), live
