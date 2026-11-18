@@ -4,6 +4,7 @@ import { ArrowRight, CalendarClock, CircleCheck, CircleMinus, CircleX, Flag, Loa
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
+import { ReportQuestion } from "@/components/report-question";
 import { ScorePill } from "@/components/score-pill";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
 import { buttonVariants } from "@/components/ui/button";
@@ -21,6 +22,8 @@ interface Props {
   kind: "practice" | "review";
   questions: PracticeQuestion[];
   initialAttempts: RecordedAttempt[];
+  /** Questions the user already has an open report on. */
+  reportedIds: number[];
 }
 
 const RESULT_UI: Record<AttemptResult, { label: string; Icon: typeof CircleCheck; tone: string }> = {
@@ -62,7 +65,7 @@ function QuestionTimer({ running, resetKey }: { running: boolean; resetKey: numb
   );
 }
 
-export function PracticeRunner({ sessionId, kind, questions, initialAttempts }: Props) {
+export function PracticeRunner({ sessionId, kind, questions, initialAttempts, reportedIds }: Props) {
   const [attempts, setAttempts] = useState(() => new Map(initialAttempts.map((a) => [a.questionId, a])));
   const [index, setIndex] = useState(() => {
     const done = new Set(initialAttempts.map((a) => a.questionId));
@@ -119,7 +122,7 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts }: 
     function onKey(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const target = e.target as HTMLElement | null;
-      if (target?.closest("input, textarea, [contenteditable=true]")) return;
+      if (target?.closest("input, textarea, [contenteditable=true], [data-no-shortcuts]")) return;
       const key = e.key.toLowerCase();
       if (!attempt) {
         const pick = { "1": "A", "2": "B", "3": "C", "4": "D", a: "A", b: "B", c: "C", d: "D" }[key];
@@ -287,6 +290,7 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts }: 
               ) : (
                 <p className="mt-3 text-sm text-muted-foreground">No explanation available for this question.</p>
               )}
+              <ReportQuestion questionId={question.id} initiallyReported={reportedIds.includes(question.id)} className="mt-3" />
             </section>
           )}
         </div>

@@ -1,9 +1,18 @@
 # Where we are and what's next
 
-_Last updated: 17 Nov 2026._
+_Last updated: 18 Nov 2026._
+
+**Owner's chosen order (18 Nov):** report a question → daily reminders → weekly Grand Test. Checklist in `docs/TODO.md`.
 
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
+
+## Report a question (ADR 0008), on `Release/Release_Dev`, not yet merged
+- "Report a problem" appears after an answer is revealed (practice feedback, mock answer review). Reason + optional note (≤ 500 chars). One report per user × question; reporting again reopens it.
+- `/admin/reports` (owner only): reports grouped by question, anonymous, with Mark fixed / Dismiss / Reopen. Admins come from the **`ADMIN_EMAILS`** env var; empty means nobody, so CI stays locked.
+- Migration 0007 (`question_reports` and two enums) has been applied to the shared DB. Additive; no `srs:rebuild`.
+- **Before merging:** the owner adds `ADMIN_EMAILS` to `.env.local` and to Vercel (Production).
+- Fixing an answer key doesn't re-mark old attempts (ADR 0002). Decide later whether to re-mark.
 
 ## Mock tests (ADR 0007), live
 - `/mock`: **Full mock** (NEET PG 2026: 180 questions, 5 sections × 36 questions × 42 min) and **Mini mock** (45 questions, 5 × 9 × 10.5 min, same 70 s pace).
@@ -53,6 +62,5 @@ Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Ph
 3. **Publish Google sign-in** (Google Auth Platform → Branding: home `https://medminutes.vercel.app`, privacy `/privacy`, terms `/terms`, authorized domain `medminutes.vercel.app`, no logo; then Audience → Publish). Optional for now: non-test users can already sign in (only basic scopes). Do it before wide sharing.
 
 ## Smaller backlog
-- "Report this question" button (bad MedMCQA text or answer keys).
 - Neon compute (100 CU-h/month) is the first free-tier limit to watch; check Neon Monitoring and Vercel Usage weekly.
 - Optional later: custom domain, which would enable email reminders and look more professional.

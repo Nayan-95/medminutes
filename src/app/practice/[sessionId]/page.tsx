@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUserId } from "@/lib/current-user";
 import { getSessionForUser } from "@/lib/practice";
+import { getOpenReportIdsForSession } from "@/lib/reports-data";
 
 import { PracticeRunner } from "./practice-runner";
 
@@ -13,7 +14,11 @@ async function Session({ params }: { params: PageProps<"/practice/[sessionId]">[
   const { sessionId } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(sessionId)) redirect("/practice");
 
-  const data = await getSessionForUser(sessionId, await requireUserId(`/practice/${sessionId}`));
+  const userId = await requireUserId(`/practice/${sessionId}`);
+  const [data, reportedIds] = await Promise.all([
+    getSessionForUser(sessionId, userId),
+    getOpenReportIdsForSession(userId, sessionId),
+  ]);
   // Missing, deleted or not yours: send to a fresh session instead of a dead-end 404.
   if (!data) redirect("/practice");
   if (data.session.kind === "mock") redirect(`/mock/${sessionId}`);
@@ -25,6 +30,7 @@ async function Session({ params }: { params: PageProps<"/practice/[sessionId]">[
       kind={data.session.kind}
       questions={data.questions}
       initialAttempts={data.attempts}
+      reportedIds={reportedIds}
     />
   );
 }

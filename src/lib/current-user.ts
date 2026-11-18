@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 import { auth } from "@/auth";
+import { isAdminEmail } from "@/lib/reports";
 
 /**
  * Data access layer for "who is this?". Every page and Server Action asks here
@@ -29,4 +30,13 @@ export async function requireUserId(returnTo = "/practice"): Promise<string> {
   const user = await getCurrentUser();
   if (!user) redirect(`/signin?callbackUrl=${encodeURIComponent(returnTo)}`);
   return user.id;
+}
+
+/**
+ * The signed-in user if their email is in ADMIN_EMAILS, otherwise null.
+ * Admin pages call notFound() on null so they look like they don't exist.
+ */
+export async function getAdminUser(): Promise<CurrentUser | null> {
+  const user = await getCurrentUser();
+  return user && isAdminEmail(user.email) ? user : null;
 }

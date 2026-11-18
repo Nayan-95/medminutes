@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { ReportQuestion } from "@/components/report-question";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +12,7 @@ import { requireUserId } from "@/lib/current-user";
 import { formatDuration, formatPercent, formatScore } from "@/lib/format";
 import { accuracyOf, outcomeOf, totalSeconds, type MockAnalysis, type Outcome } from "@/lib/mock";
 import { formatOf, getMockResult, type MockResultQuestion } from "@/lib/mock-data";
+import { getOpenReportIdsForSession } from "@/lib/reports-data";
 import { OPTIONS } from "@/lib/scoring";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +75,8 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
   await connection();
   const { sessionId } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(sessionId)) redirect("/mock");
-  const data = await getMockResult(sessionId, await requireUserId(`/mock/${sessionId}/result`));
+  const userId = await requireUserId(`/mock/${sessionId}/result`);
+  const [data, reportedIds] = await Promise.all([getMockResult(sessionId, userId), getOpenReportIdsForSession(userId, sessionId)]);
   if (!data) redirect("/mock");
   if (!data.submitted) redirect(`/mock/${sessionId}`);
 
@@ -339,6 +342,7 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
                       ) : (
                         <p className="mt-3 text-sm text-muted-foreground">No explanation available for this question.</p>
                       )}
+                      <ReportQuestion questionId={q.questionId} initiallyReported={reportedIds.includes(q.questionId)} className="mt-3" />
                     </div>
                   </details>
                 </li>

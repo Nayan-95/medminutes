@@ -25,6 +25,10 @@ export default function PrivacyPage() {
           that you skipped), whether it was correct, the marks, and how long you took. In mock tests we also keep the
           first answer you picked for each question and which questions you marked for review.
         </li>
+        <li>
+          <strong>Question reports:</strong> if you report a problem with a question, we keep the reason, any note
+          you write, and that it came from your account. Only the app owner sees reports, and without your name.
+        </li>
       </ul>
 
       <h2>Why we collect it</h2>

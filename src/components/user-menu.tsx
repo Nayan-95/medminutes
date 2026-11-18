@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartColumn, ClipboardList, LogOut, Play, Trophy } from "lucide-react";
+import { ChartColumn, ClipboardList, LogOut, Play, TriangleAlert, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useTransition } from "react";
 
@@ -30,10 +30,12 @@ export function UserMenu({
   name,
   email,
   image,
+  isAdmin = false,
 }: {
   name: string | null;
   email: string | null;
   image: string | null;
+  isAdmin?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   return (
@@ -75,6 +77,12 @@ export function UserMenu({
             <Trophy />
             Leaderboard
           </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem render={<Link href="/admin/reports" />}>
+              <TriangleAlert />
+              Question reports
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem

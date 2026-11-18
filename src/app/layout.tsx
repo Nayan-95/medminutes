@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserMenu } from "@/components/user-menu";
 import { getCurrentUser } from "@/lib/current-user";
+import { isAdminEmail } from "@/lib/reports";
 import { getTotalScore } from "@/lib/practice";
 import { cn } from "@/lib/utils";
 
@@ -71,7 +72,7 @@ async function HeaderAccount() {
       <span title="Lifetime score: +4 correct, −1 wrong, 0 skipped" data-testid="total-score">
         <ScorePill value={total} label="Total" />
       </span>
-      <UserMenu name={user.name} email={user.email} image={user.image} />
+      <UserMenu name={user.name} email={user.email} image={user.image} isAdmin={isAdminEmail(user.email)} />
     </div>
   );
 }

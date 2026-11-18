@@ -264,3 +264,37 @@ export const mockResponses = pgTable(
   },
   (t) => [primaryKey({ columns: [t.sessionId, t.questionId] })],
 );
+
+// ---------------------------------------------------------------------------
+// Question reports (docs/adr/0008). Students flag bad MedMCQA content; the
+// owner reviews them on /admin/reports. One row per user per question.
+// ---------------------------------------------------------------------------
+
+export const reportReasonEnum = pgEnum("report_reason", ["wrong_answer", "wrong_explanation", "typo", "unclear", "other"]);
+export const reportStatusEnum = pgEnum("report_status", ["open", "fixed", "dismissed"]);
+
+export const questionReports = pgTable(
+  "question_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    reason: reportReasonEnum("reason").notNull(),
+    /** Optional free text from the student (at most 500 characters). */
+    note: text("note"),
+    /** "open" until the owner marks it fixed or dismissed; reporting again reopens it. */
+    status: reportStatusEnum("status").notNull().default("open"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("question_reports_user_question_uq").on(t.userId, t.questionId),
+    // The admin list: open reports grouped by question.
+    index("question_reports_status_question_idx").on(t.status, t.questionId),
+    check("question_reports_note_ck", sql`${t.note} is null or char_length(${t.note}) <= 500`),
+  ],
+);
