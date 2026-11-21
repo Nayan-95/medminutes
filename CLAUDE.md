@@ -21,6 +21,7 @@ NEET PG MCQ practice with real exam marking (+4 / −1 / 0), Google sign-in, a p
 - MedMCQA text has stray HTML (cleaned at display by `src/lib/text.ts`) and missing letters ("hypeension") that code can't fix.
 - Answer colours: teal `#0d9488` (correct) and red `#ef4444` (wrong), validated for colour-blind separation in both themes. Always pair with an icon and label.
 - UI kit: shadcn/ui on **Base UI** (not Radix): use `render={<Link/>}`, not `asChild`. `cn` comes from the `cn` package.
+- Design skill `minimalist-ui` (taste-skill-classics, MIT) is installed in `.claude/skills/` (pinned in `skills-lock.json`); run it by name for UI polish. **Project rules win over it:** keep Lucide icons, the validated answer colours, dark mode support, and shadcn components. Its pastel palette is for tags and accents only.
 
 ## Commands
 | | |
