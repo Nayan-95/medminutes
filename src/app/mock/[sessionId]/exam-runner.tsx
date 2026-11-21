@@ -369,7 +369,7 @@ export function ExamRunner({ sessionId, format: f, startedAt, serverNow, questio
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start">
         {/* Question */}
-        <article key={question.id} className="animate-rise rounded-2xl border bg-card p-5 shadow-card sm:p-8">
+        <article key={question.id} className="animate-rise rounded-xl border bg-card p-5 shadow-card sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-sm font-medium tabular-nums" data-testid="question-counter">
               Question {index + 1} <span className="text-muted-foreground">of {questions.length}</span>
@@ -392,7 +392,7 @@ export function ExamRunner({ sessionId, format: f, startedAt, serverNow, questio
                   aria-checked={picked}
                   onClick={() => update({ selectedOption: opt })}
                   className={cn(
-                    "group flex items-start gap-3 rounded-xl border bg-card p-3.5 text-left transition-all outline-none sm:p-4",
+                    "group flex items-start gap-3 rounded-lg border bg-card p-3.5 text-left transition-all outline-none sm:p-4",
                     "focus-visible:ring-3 focus-visible:ring-ring/50",
                     picked ? "border-foreground ring-1 ring-foreground" : "hover:border-foreground/25 hover:bg-muted/50",
                   )}
@@ -428,7 +428,7 @@ export function ExamRunner({ sessionId, format: f, startedAt, serverNow, questio
         </article>
 
         {/* Palette: side panel on large screens */}
-        <aside className="hidden rounded-2xl border bg-card p-4 shadow-card lg:sticky lg:top-32 lg:block" aria-label="Question palette">
+        <aside className="hidden rounded-xl border bg-card p-4 shadow-card lg:sticky lg:top-32 lg:block" aria-label="Question palette">
           {palette}
         </aside>
       </div>
@@ -501,7 +501,7 @@ export function ExamRunner({ sessionId, format: f, startedAt, serverNow, questio
       {/* Submit confirmation (and the time-up state) */}
       {(confirmOpen || submitting) && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="submit-title" className="w-full max-w-md animate-rise rounded-2xl border bg-card p-6 shadow-float">
+          <div role="dialog" aria-modal="true" aria-labelledby="submit-title" className="w-full max-w-md animate-rise rounded-xl border bg-card p-6 shadow-float">
             <h2 id="submit-title" className="text-lg font-semibold">
               {timeUp ? "Time's up" : "Submit the mock?"}
             </h2>
@@ -519,7 +519,7 @@ export function ExamRunner({ sessionId, format: f, startedAt, serverNow, questio
                 ["Marked for review", allCounts.marked + allCounts["answered-marked"]],
                 ["Not visited", allCounts["not-visited"]],
               ].map(([label, n]) => (
-                <div key={label} className="rounded-xl border bg-background/50 px-3 py-2">
+                <div key={label} className="rounded-lg border bg-background/50 px-3 py-2">
                   <dt className="text-xs text-muted-foreground">{label}</dt>
                   <dd className="text-lg font-semibold tabular-nums">{n}</dd>
                 </div>

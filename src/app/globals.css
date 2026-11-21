@@ -11,6 +11,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-geist-sans);
+  /* Editorial serif for page titles and hero headings only (minimalist-ui). */
+  --font-display: var(--font-newsreader);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -52,8 +54,19 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
-  --shadow-float: 0 12px 32px -12px rgb(16 24 40 / 0.18), 0 2px 6px rgb(16 24 40 / 0.06);
+  /* Flat by design: borders carry structure, shadows stay under 5% opacity. */
+  --shadow-card: 0 1px 1px rgb(0 0 0 / 0.02);
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.03), 0 8px 24px -12px rgb(0 0 0 / 0.05);
+
+  /* Muted pastel tags (text/background pairs pass WCAG AA in both themes). */
+  --color-tag-red: var(--tag-red);
+  --color-tag-red-foreground: var(--tag-red-foreground);
+  --color-tag-blue: var(--tag-blue);
+  --color-tag-blue-foreground: var(--tag-blue-foreground);
+  --color-tag-green: var(--tag-green);
+  --color-tag-green-foreground: var(--tag-green-foreground);
+  --color-tag-yellow: var(--tag-yellow);
+  --color-tag-yellow-foreground: var(--tag-yellow-foreground);
 
   --animate-pop: pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
   --animate-shake: shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
@@ -70,6 +83,10 @@
     30%, 50%, 70% { transform: translateX(-3px); }
     40%, 60% { transform: translateX(3px); }
   }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
   @keyframes rise {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
@@ -78,59 +95,69 @@
 
 :root {
   color-scheme: light;
-  --background: #f7f7f8;
-  --foreground: #0b0b0f;
+  /* Warm monochrome: bone canvas, white cards, charcoal text. */
+  --background: #fbfbfa;
+  --foreground: #111111;
   --card: #ffffff;
-  --card-foreground: #0b0b0f;
+  --card-foreground: #111111;
   --surface-raised: #ffffff;
   --popover: #ffffff;
-  --popover-foreground: #0b0b0f;
-  --primary: #111114;
-  --primary-foreground: #fafafa;
-  --secondary: #efeff1;
-  --secondary-foreground: #18181b;
-  --muted: #f1f1f3;
-  --muted-foreground: #63636e;
-  --accent: #efeff1;
-  --accent-foreground: #18181b;
+  --popover-foreground: #111111;
+  --primary: #111111;
+  --primary-foreground: #fbfbfa;
+  --secondary: #f3f2ef;
+  --secondary-foreground: #1c1c1a;
+  --muted: #f3f2ef;
+  --muted-foreground: #6f6e69;
+  --accent: #f3f2ef;
+  --accent-foreground: #1c1c1a;
   --destructive: #dc2626;
-  --border: #e6e6ea;
-  --input: #dcdce1;
+  --border: #eaeaea;
+  --input: #e0dfdc;
   --ring: #0d9488;
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
   --brand: #0f766e;
   --brand-foreground: #ffffff;
   --correct: #0d9488;
   --correct-soft: color-mix(in oklab, #0d9488 10%, #ffffff);
-  --heat-0: #ebebee;
+  --heat-0: #edece9;
   --heat-1: #14b8a6;
   --heat-2: #0d9488;
   --heat-3: #0f766e;
   --heat-4: #134e4a;
   --wrong: #ef4444;
   --wrong-soft: color-mix(in oklab, #ef4444 9%, #ffffff);
-  --skipped: #a1a1aa;
+  --skipped: #a8a7a2;
+
+  --tag-red: #fdebec;
+  --tag-red-foreground: #9f2f2d;
+  --tag-blue: #e1f3fe;
+  --tag-blue-foreground: #1f6c9f;
+  --tag-green: #edf3ec;
+  --tag-green-foreground: #346538;
+  --tag-yellow: #fbf3db;
+  --tag-yellow-foreground: #956400;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --background: #0c0c0e;
-    --foreground: #f4f4f5;
-    --card: #17171a;
-    --card-foreground: #f4f4f5;
-    --surface-raised: #1d1d21;
-    --popover: #1d1d21;
-    --popover-foreground: #f4f4f5;
-    --primary: #f4f4f5;
-    --primary-foreground: #111114;
-    --secondary: #232328;
-    --secondary-foreground: #f4f4f5;
-    --muted: #1f1f23;
-    --muted-foreground: #a1a1aa;
-    --accent: #232328;
-    --accent-foreground: #f4f4f5;
+    --background: #121211;
+    --foreground: #edecea;
+    --card: #1a1a19;
+    --card-foreground: #edecea;
+    --surface-raised: #20201f;
+    --popover: #20201f;
+    --popover-foreground: #edecea;
+    --primary: #edecea;
+    --primary-foreground: #121211;
+    --secondary: #232321;
+    --secondary-foreground: #edecea;
+    --muted: #232321;
+    --muted-foreground: #a3a29d;
+    --accent: #232321;
+    --accent-foreground: #edecea;
     --destructive: #f87171;
     --border: rgb(255 255 255 / 0.08);
     --input: rgb(255 255 255 / 0.14);
@@ -139,15 +166,24 @@
     --brand: #2dd4bf;
     --brand-foreground: #042f2e;
     --correct: #0d9488;
-    --correct-soft: color-mix(in oklab, #0d9488 18%, #17171a);
-    --heat-0: #26262b;
+    --correct-soft: color-mix(in oklab, #0d9488 18%, #1a1a19);
+    --heat-0: #282826;
     --heat-1: #115e59;
     --heat-2: #0f766e;
     --heat-3: #14b8a6;
     --heat-4: #5eead4;
     --wrong: #ef4444;
-    --wrong-soft: color-mix(in oklab, #ef4444 16%, #17171a);
-    --skipped: #71717a;
+    --wrong-soft: color-mix(in oklab, #ef4444 16%, #1a1a19);
+    --skipped: #75746f;
+
+    --tag-red: #3a2423;
+    --tag-red-foreground: #e8a29f;
+    --tag-blue: #1b2e3b;
+    --tag-blue-foreground: #8cc8ef;
+    --tag-green: #1f2c20;
+    --tag-green-foreground: #9fcca3;
+    --tag-yellow: #352c16;
+    --tag-yellow-foreground: #e6c06b;
   }
 }
 
@@ -175,6 +211,44 @@
 @media (width < 40rem) {
   body:has([data-sticky-actions]) > footer {
     padding-bottom: 5.5rem;
+  }
+}
+
+/* Small uppercase label for metadata (stat labels, section eyebrows). */
+@utility eyebrow {
+  font-family: var(--font-geist-mono);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+/* Editorial serif heading with tight tracking. */
+@utility font-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+/* Interactive cards: a quiet border and shadow shift on hover. */
+@utility card-hover {
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+  &:hover {
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.04);
+    border-color: color-mix(in oklab, var(--foreground) 16%, var(--border));
+  }
+}
+
+/* Scroll reveal (src/components/reveal.tsx). Hidden only when motion is allowed and the observer is running. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="pending"] {
+    opacity: 0;
+  }
+  [data-reveal="shown"] {
+    animation: reveal 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--index, 0) * 80ms);
   }
 }
 

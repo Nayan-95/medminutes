@@ -42,7 +42,7 @@ function SubjectOption({ choice, onPick }: { choice: SubjectChoice; onPick: (c: 
   return (
     <label
       className={cn(
-        "group relative flex cursor-pointer items-center gap-2.5 rounded-xl border bg-card p-2.5 shadow-card transition-all sm:gap-3 sm:p-3",
+        "group relative flex cursor-pointer items-center gap-2.5 rounded-lg border bg-card p-2.5 shadow-card transition-all sm:gap-3 sm:p-3",
         "hover:border-foreground/20 hover:shadow-float",
         "has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground",
         "has-focus-visible:ring-3 has-focus-visible:ring-ring/50",
@@ -123,7 +123,7 @@ export function SetupForm({
           ref={step2}
           aria-labelledby="step-2-title"
           data-testid="setup-step-2"
-          className="animate-rise scroll-mb-6 rounded-2xl border bg-card p-5 shadow-card sm:p-6"
+          className="animate-rise scroll-mb-6 rounded-xl border bg-card p-5 shadow-card sm:p-6"
         >
           <div id="step-2-title">
             <StepHeading step={2} title="Questions and time" />
@@ -138,7 +138,7 @@ export function SetupForm({
           <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
             <fieldset>
               <legend className="mb-2 text-xs font-medium text-muted-foreground">How many questions?</legend>
-              <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted p-1">
+              <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
                 {counts.map((n) => (
                   <label
                     key={n}
@@ -161,7 +161,7 @@ export function SetupForm({
           </div>
         </section>
       ) : (
-        <p className="rounded-2xl border border-dashed p-5 text-center text-sm text-muted-foreground" data-testid="setup-hint">
+        <p className="rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground" data-testid="setup-hint">
           Pick a subject to choose how many questions.
         </p>
       )}

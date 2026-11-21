@@ -42,7 +42,7 @@ export default function PracticeSessionPage(props: PageProps<"/practice/[session
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-5" aria-label="Loading questions">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-1.5 w-full rounded-full" />
-          <Skeleton className="h-[420px] w-full rounded-2xl" />
+          <Skeleton className="h-[420px] w-full rounded-xl" />
         </div>
       }
     >

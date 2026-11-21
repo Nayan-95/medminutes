@@ -3,6 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/page-header";
 import { ScorePill } from "@/components/score-pill";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
 import { buttonVariants } from "@/components/ui/button";
@@ -42,8 +43,8 @@ function Tile({
   testId: string;
 }) {
   return (
-    <div className="rounded-2xl border bg-card p-4 shadow-card sm:p-5" data-testid={testId}>
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="rounded-xl border bg-card p-4 shadow-card sm:p-5" data-testid={testId}>
+      <p className="eyebrow flex items-center gap-1.5">
         <Icon className="size-3.5" aria-hidden />
         {label}
       </p>
@@ -57,7 +58,7 @@ function Tile({
 
 function Section({ title, subtitle, children, className }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-2xl border bg-card shadow-card", className)}>
+    <section className={cn("rounded-xl border bg-card shadow-card", className)}>
       <div className="border-b px-5 py-4 sm:px-6">
         <h2 className="font-semibold tracking-tight">{title}</h2>
         {subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>}
@@ -75,11 +76,11 @@ async function Dashboard() {
 
   if (o.attempted + o.skipped === 0) {
     return (
-      <div className="flex flex-col items-center gap-4 rounded-2xl border bg-card px-6 py-16 text-center shadow-card">
-        <span className="grid size-12 place-items-center rounded-xl bg-muted">
-          <Target className="size-6 text-brand" aria-hidden />
+      <div className="flex flex-col items-center gap-4 rounded-xl border bg-card px-6 py-16 text-center shadow-card">
+        <span className="grid size-12 place-items-center rounded-lg bg-tag-green text-tag-green-foreground">
+          <Target className="size-6" aria-hidden />
         </span>
-        <h2 className="text-xl font-semibold tracking-tight">No practice yet</h2>
+        <h2 className="font-display text-3xl">No practice yet</h2>
         <p className="max-w-sm text-muted-foreground">
           Finish a session and your accuracy by subject, weak topics and score trend will show up here.
         </p>
@@ -228,14 +229,14 @@ function DashboardSkeleton() {
     <div className="flex flex-col gap-6" aria-label="Loading progress">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-[112px] rounded-2xl" />
+          <Skeleton key={i} className="h-[112px] rounded-xl" />
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-        <Skeleton className="h-80 rounded-2xl" />
-        <Skeleton className="h-80 rounded-2xl" />
+        <Skeleton className="h-80 rounded-xl" />
+        <Skeleton className="h-80 rounded-xl" />
       </div>
-      <Skeleton className="h-64 rounded-2xl" />
+      <Skeleton className="h-64 rounded-xl" />
     </div>
   );
 }
@@ -243,16 +244,16 @@ function DashboardSkeleton() {
 export default function ProgressPage() {
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Your progress</h1>
-          <p className="mt-1.5 text-muted-foreground">Where you stand, and what to practise next.</p>
-        </div>
-        <Link href="/practice" className={buttonVariants({ size: "lg" })}>
-          New session
-          <ArrowRight data-icon="inline-end" />
-        </Link>
-      </div>
+      <PageHeader
+        title="Your progress"
+        description="Where you stand, and what to practise next."
+        action={
+          <Link href="/practice" className={buttonVariants({ size: "lg" })}>
+            New session
+            <ArrowRight data-icon="inline-end" />
+          </Link>
+        }
+      />
       <Suspense fallback={<DashboardSkeleton />}>
         <Dashboard />
       </Suspense>

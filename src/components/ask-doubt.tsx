@@ -84,15 +84,15 @@ export function AskDoubt({ questionId, className }: { questionId: number; classN
         <ol className="mt-3 flex flex-col gap-3 text-sm leading-relaxed" aria-live="polite">
           {turns.map((t, i) => (
             <li key={i} className="flex flex-col gap-1.5">
-              <p className="self-end rounded-2xl rounded-br-md bg-foreground px-3 py-2 text-background">{t.q}</p>
-              <p className="max-w-[95%] rounded-2xl rounded-bl-md bg-muted px-3 py-2 whitespace-pre-line" data-testid="doubt-answer">
+              <p className="self-end rounded-xl rounded-br-sm bg-foreground px-3 py-2 text-background">{t.q}</p>
+              <p className="max-w-[95%] rounded-xl rounded-bl-sm bg-muted px-3 py-2 whitespace-pre-line" data-testid="doubt-answer">
                 {t.a}
               </p>
             </li>
           ))}
           {asking && (
             <li className="flex flex-col gap-1.5">
-              <p className="self-end rounded-2xl rounded-br-md bg-foreground px-3 py-2 text-background">{asking}</p>
+              <p className="self-end rounded-xl rounded-br-sm bg-foreground px-3 py-2 text-background">{asking}</p>
               <p className="inline-flex items-center gap-2 text-muted-foreground">
                 <LoaderCircle className="size-4 animate-spin" aria-hidden />
                 Thinking…

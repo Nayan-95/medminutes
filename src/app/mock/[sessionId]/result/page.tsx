@@ -95,7 +95,7 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       {/* Hero */}
-      <section className="animate-rise rounded-2xl border bg-card p-6 shadow-card sm:p-8">
+      <section className="animate-rise rounded-xl border bg-card p-6 shadow-card sm:p-8">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span className="rounded-full bg-muted px-2.5 py-1 font-medium">{f.label}</span>
           <span>{when.format(data.session.startedAt)}</span>
@@ -107,13 +107,13 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
 
         <div className="mt-6 grid gap-6 sm:grid-cols-[1fr_auto] sm:items-end">
           <div>
-            <p className="text-sm text-muted-foreground">Score</p>
+            <p className="eyebrow">Score</p>
             <p className="mt-1 flex items-baseline gap-3" data-testid="mock-score">
-              <span className="text-6xl font-semibold tracking-tight tabular-nums">{formatScore(a.score)}</span>
+              <span className="font-display text-7xl leading-none tabular-nums">{formatScore(a.score)}</span>
               <span className="text-muted-foreground tabular-nums">/ {a.max}</span>
             </p>
           </div>
-          <div className="rounded-xl border bg-background/50 px-4 py-3 sm:text-right" data-testid="mock-percentile">
+          <div className="rounded-lg border bg-background/50 px-4 py-3 sm:text-right" data-testid="mock-percentile">
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground sm:justify-end">
               <Trophy className="size-3.5" aria-hidden /> Percentile
             </p>
@@ -209,7 +209,7 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
       </section>
 
       {/* Sections */}
-      <section className="rounded-2xl border bg-card shadow-card" aria-labelledby="sections-title">
+      <section className="rounded-xl border bg-card shadow-card" aria-labelledby="sections-title">
         <h2 id="sections-title" className="border-b px-5 py-4 font-semibold tracking-tight sm:px-6">
           By section
         </h2>
@@ -245,7 +245,7 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
       </section>
 
       {/* Subjects */}
-      <section className="rounded-2xl border bg-card shadow-card" aria-labelledby="subjects-title">
+      <section className="rounded-xl border bg-card shadow-card" aria-labelledby="subjects-title">
         <div className="border-b px-5 py-4 sm:px-6">
           <h2 id="subjects-title" className="font-semibold tracking-tight">By subject</h2>
           <p className="text-xs text-muted-foreground">Weakest first. Practise these next.</p>
@@ -271,7 +271,7 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
       </section>
 
       {/* Review */}
-      <section className="rounded-2xl border bg-card shadow-card" aria-labelledby="review-title">
+      <section className="rounded-xl border bg-card shadow-card" aria-labelledby="review-title">
         <div className="flex flex-wrap items-center gap-3 border-b px-5 py-4 sm:px-6">
           <h2 id="review-title" className="font-semibold tracking-tight">Review answers</h2>
           <nav className="flex flex-wrap gap-1 sm:ml-auto" aria-label="Filter questions">
@@ -375,8 +375,8 @@ export default function MockResultPage(props: PageProps<"/mock/[sessionId]/resul
     <Suspense
       fallback={
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6" aria-label="Loading result">
-          <Skeleton className="h-[380px] w-full rounded-2xl" />
-          <Skeleton className="h-[220px] w-full rounded-2xl" />
+          <Skeleton className="h-[380px] w-full rounded-xl" />
+          <Skeleton className="h-[220px] w-full rounded-xl" />
         </div>
       }
     >

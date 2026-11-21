@@ -4,6 +4,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/page-header";
 import { subjectLabel } from "@/components/subject-icon";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,7 +29,7 @@ function Section({ title, subtitle, icon: Icon, children, className, testId }: {
   testId?: string;
 }) {
   return (
-    <section className={cn("rounded-2xl border bg-card shadow-card", className)} data-testid={testId}>
+    <section className={cn("rounded-xl border bg-card shadow-card", className)} data-testid={testId}>
       <div className="border-b px-5 py-4 sm:px-6">
         <h2 className="flex items-center gap-2 font-semibold tracking-tight">
           <Icon className="size-4 text-muted-foreground" aria-hidden />
@@ -55,8 +56,8 @@ function Person({ name, email, isMe }: { name: string | null; email: string | nu
 
 function Tile({ label, value, note, icon: Icon, testId }: { label: string; value: React.ReactNode; note?: React.ReactNode; icon: typeof Trophy; testId: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-4 shadow-card sm:p-5" data-testid={testId}>
-      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="rounded-xl border bg-card p-4 shadow-card sm:p-5" data-testid={testId}>
+      <p className="eyebrow flex items-center gap-1.5">
         <Icon className="size-3.5" aria-hidden />
         {label}
       </p>
@@ -144,7 +145,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
           />
         </div>
       ) : (
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between" data-testid="not-ranked">
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed p-5 sm:flex-row sm:items-center sm:justify-between" data-testid="not-ranked">
           <p className="text-sm text-muted-foreground">
             You haven&apos;t answered any questions {scope} yet. Answer one to get on the board.
           </p>
@@ -264,7 +265,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
       </div>
 
       {/* Visibility */}
-      <form action={setLeaderboardHidden} className="flex flex-col gap-3 rounded-2xl border bg-card p-5 shadow-card sm:flex-row sm:items-center sm:justify-between" data-testid="visibility">
+      <form action={setLeaderboardHidden} className="flex flex-col gap-3 rounded-xl border bg-card p-5 shadow-card sm:flex-row sm:items-center sm:justify-between" data-testid="visibility">
         <input type="hidden" name="hidden" value={data.me.hidden ? "false" : "true"} />
         <p className="flex items-start gap-2 text-sm text-muted-foreground">
           <EyeOff className="mt-0.5 size-4 shrink-0" aria-hidden />
@@ -300,7 +301,7 @@ async function LeaderboardContent({ searchParams }: { searchParams: PageProps<"/
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <nav className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1" aria-label="Time window">
+        <nav className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" aria-label="Time window">
           {(["week", "all"] as const).map((w) => (
             <Link
               key={w}
@@ -328,10 +329,10 @@ function LeaderboardSkeleton() {
       <Skeleton className="h-10 w-full max-w-md rounded-xl" />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <Skeleton key={i} className="h-28 rounded-2xl" />
+          <Skeleton key={i} className="h-28 rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-96 rounded-2xl" />
+      <Skeleton className="h-96 rounded-xl" />
     </div>
   );
 }
@@ -339,10 +340,10 @@ function LeaderboardSkeleton() {
 export default function LeaderboardPage(props: PageProps<"/leaderboard">) {
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Leaderboard</h1>
-        <p className="mt-1.5 text-muted-foreground">Real NEET PG marking. The weekly board resets every Monday at midnight IST.</p>
-      </div>
+      <PageHeader
+        title="Leaderboard"
+        description="Real NEET PG marking. The weekly board resets every Monday at midnight IST."
+      />
       <Suspense fallback={<LeaderboardSkeleton />}>
         <LeaderboardContent searchParams={props.searchParams} />
       </Suspense>

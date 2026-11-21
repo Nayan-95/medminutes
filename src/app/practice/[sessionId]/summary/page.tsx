@@ -61,7 +61,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       {/* Hero */}
-      <section className="animate-rise rounded-2xl border bg-card p-6 shadow-card sm:p-8">
+      <section className="animate-rise rounded-xl border bg-card p-6 shadow-card sm:p-8">
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
             {data.session.kind === "review" ? <RotateCcw className="size-3.5" aria-hidden /> : <SubjectIcon name={subjectName} className="size-3.5" />}
@@ -77,9 +77,9 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
         </div>
 
         <h1 className="sr-only">Session complete</h1>
-        <p className="mt-6 text-sm text-muted-foreground">Session score</p>
+        <p className="eyebrow mt-6">Session score</p>
         <p className="mt-1 flex items-baseline gap-3" data-testid="summary-score">
-          <span className="text-6xl font-semibold tracking-tight tabular-nums">{formatScore(s.total)}</span>
+          <span className="font-display text-7xl leading-none tabular-nums">{formatScore(s.total)}</span>
           <span className="text-muted-foreground tabular-nums">/ +{max}</span>
         </p>
         <p className="mt-2 font-medium">{verdict(s.total, max)}</p>
@@ -98,7 +98,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
 
         <dl className="mt-4 grid grid-cols-3 gap-2.5">
           {PARTS.map((p) => (
-            <div key={p.key} className="rounded-xl border bg-background/50 p-3 sm:p-4" data-testid={`tile-${p.key}`}>
+            <div key={p.key} className="rounded-lg border bg-background/50 p-3 sm:p-4" data-testid={`tile-${p.key}`}>
               <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className={cn("size-2 rounded-full", p.swatch)} aria-hidden />
                 <p.Icon className={cn("size-3.5", p.icon)} aria-hidden />
@@ -127,7 +127,7 @@ async function Summary({ params }: { params: PageProps<"/practice/[sessionId]/su
       </section>
 
       {/* Review */}
-      <section className="rounded-2xl border bg-card shadow-card">
+      <section className="rounded-xl border bg-card shadow-card">
         <h2 className="border-b px-5 py-4 font-semibold tracking-tight sm:px-6">Review</h2>
         <ol className="divide-y">
           {data.questions.map((q, i) => {
@@ -197,8 +197,8 @@ export default function SummaryPage(props: PageProps<"/practice/[sessionId]/summ
     <Suspense
       fallback={
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-6" aria-label="Loading summary">
-          <Skeleton className="h-[380px] w-full rounded-2xl" />
-          <Skeleton className="h-[300px] w-full rounded-2xl" />
+          <Skeleton className="h-[380px] w-full rounded-xl" />
+          <Skeleton className="h-[300px] w-full rounded-xl" />
         </div>
       }
     >

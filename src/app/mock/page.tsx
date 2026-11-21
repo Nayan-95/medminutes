@@ -3,6 +3,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/page-header";
 import { ScorePill } from "@/components/score-pill";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUserId } from "@/lib/current-user";
@@ -24,7 +25,7 @@ function duration(seconds: number) {
 function FormatOption({ f, defaultChecked }: { f: MockFormat; defaultChecked?: boolean }) {
   const perSection = f.sectionSeconds / 60;
   return (
-    <label className="group flex cursor-pointer flex-col gap-3 rounded-xl border bg-card p-4 shadow-card transition-all hover:border-foreground/20 has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50 sm:p-5">
+    <label className="group flex cursor-pointer flex-col gap-3 rounded-lg border bg-card p-4 shadow-card transition-all hover:border-foreground/20 has-checked:border-foreground has-checked:ring-1 has-checked:ring-foreground has-focus-visible:ring-3 has-focus-visible:ring-ring/50 sm:p-5">
       <input type="radio" name="format" value={f.id} defaultChecked={defaultChecked} className="sr-only" aria-label={`${f.label}: ${totalQuestions(f)} questions, ${duration(totalSeconds(f))}`} />
       <span className="flex items-baseline justify-between gap-3">
         <span className="font-semibold">{f.label}</span>
@@ -63,7 +64,7 @@ async function Mocks() {
         <Link
           href={`/mock/${running.id}`}
           data-testid="resume-mock"
-          className="flex items-center gap-3 rounded-2xl border border-brand/40 bg-card p-4 shadow-card hover:shadow-float sm:p-5"
+          className="flex items-center gap-3 rounded-xl border border-brand/40 bg-card p-4 card-hover sm:p-5"
         >
           <PlayCircle className="size-6 shrink-0 text-brand" aria-hidden />
           <span className="flex-1">
@@ -86,7 +87,7 @@ async function Mocks() {
           <FormatOption f={MOCK_FORMATS.mini} />
         </fieldset>
 
-        <section className="rounded-2xl border bg-card p-5 shadow-card sm:p-6" aria-labelledby="rules-title">
+        <section className="rounded-xl border bg-card p-5 shadow-card sm:p-6" aria-labelledby="rules-title">
           <h2 id="rules-title" className="text-sm font-medium">
             Exam rules
           </h2>
@@ -118,7 +119,7 @@ async function Mocks() {
           <h2 id="past-title" className="mb-3 text-sm font-medium">
             Your mocks
           </h2>
-          <ul className="divide-y rounded-2xl border bg-card shadow-card" data-testid="past-mocks">
+          <ul className="divide-y rounded-xl border bg-card shadow-card" data-testid="past-mocks">
             {mocks
               .filter((m) => m.endedAt)
               .map((m) => {
@@ -149,12 +150,10 @@ async function Mocks() {
 export default function MockPage() {
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Mock test</h1>
-        <p className="mt-1.5 max-w-2xl text-muted-foreground">
-          A timed exam in the NEET PG 2026 pattern. Answers and your analysis appear when you submit or time runs out.
-        </p>
-      </div>
+      <PageHeader
+        title="Mock test"
+        description="A timed exam in the NEET PG 2026 pattern. Answers and your analysis appear when you submit or time runs out."
+      />
       <Suspense
         fallback={
           <div className="flex flex-col gap-5">
@@ -162,7 +161,7 @@ export default function MockPage() {
               <Skeleton className="h-[136px] rounded-xl" />
               <Skeleton className="h-[136px] rounded-xl" />
             </div>
-            <Skeleton className="h-[280px] rounded-2xl" />
+            <Skeleton className="h-[280px] rounded-xl" />
           </div>
         }
       >

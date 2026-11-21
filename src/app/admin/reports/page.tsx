@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { setReportStatus } from "@/app/report-actions";
+import { PageHeader } from "@/components/page-header";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,7 +52,7 @@ function ReasonSummary({ reports }: { reports: ReportGroup["reports"] }) {
 
 function GroupCard({ g, status }: { g: ReportGroup; status: ReportStatus }) {
   return (
-    <li className="rounded-2xl border bg-card p-5 shadow-card sm:p-6" data-testid="report-group" data-question-id={g.questionId}>
+    <li className="rounded-xl border bg-card p-5 shadow-card sm:p-6" data-testid="report-group" data-question-id={g.questionId}>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 font-medium">
           <SubjectIcon name={g.subject} className="size-3.5" />
@@ -136,13 +137,15 @@ async function Reports({ searchParams }: { searchParams: PageProps<"/admin/repor
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Question reports</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Problems students flagged after answering. Fix the question in the database (<code className="text-xs">npm run db:studio</code>, table{" "}
-          <code className="text-xs">questions</code>), then mark it fixed. Reporters stay anonymous here.
-        </p>
-      </div>
+      <PageHeader
+        title="Question reports"
+        description={
+          <>
+            Problems students flagged after answering. Fix the question in the database (<code className="font-mono text-xs">npm run db:studio</code>, table{" "}
+            <code className="font-mono text-xs">questions</code>), then mark it fixed. Reporters stay anonymous here.
+          </>
+        }
+      />
 
       <nav className="flex flex-wrap gap-1" aria-label="Report status">
         {REPORT_STATUSES.map((s) => (
@@ -158,7 +161,7 @@ async function Reports({ searchParams }: { searchParams: PageProps<"/admin/repor
       </nav>
 
       {groups.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center">
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed px-6 py-14 text-center">
           <Inbox className="size-6 text-muted-foreground" aria-hidden />
           <p className="font-medium">Nothing here</p>
           <p className="text-sm text-muted-foreground">{status === "open" ? "No open reports. Nice." : `No ${TAB_LABEL[status].toLowerCase()} reports yet.`}</p>
@@ -187,7 +190,7 @@ export default function AdminReportsPage(props: PageProps<"/admin/reports">) {
       fallback={
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4" aria-label="Loading reports">
           <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-[320px] w-full rounded-2xl" />
+          <Skeleton className="h-[320px] w-full rounded-xl" />
         </div>
       }
     >

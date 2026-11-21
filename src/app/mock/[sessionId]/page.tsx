@@ -36,8 +36,8 @@ export default function MockExamPage(props: PageProps<"/mock/[sessionId]">) {
         <div className="flex flex-col gap-4" aria-label="Loading exam">
           <Skeleton className="h-11 w-full" />
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
-            <Skeleton className="h-[440px] rounded-2xl" />
-            <Skeleton className="hidden h-[360px] rounded-2xl lg:block" />
+            <Skeleton className="h-[440px] rounded-xl" />
+            <Skeleton className="hidden h-[360px] rounded-xl lg:block" />
           </div>
         </div>
       }

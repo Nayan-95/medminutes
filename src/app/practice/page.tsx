@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUserId } from "@/lib/current-user";
 import { getReviewStatus, listSubjects, QUESTION_COUNTS } from "@/lib/practice";
@@ -40,12 +41,10 @@ function SetupSkeleton() {
 export default function PracticeSetupPage() {
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">New practice session</h1>
-        <p className="mt-1.5 text-muted-foreground">
-          Pick a subject, then how many questions. You&apos;ll see the answer after each one.
-        </p>
-      </div>
+      <PageHeader
+        title="New practice session"
+        description="Pick a subject, then how many questions. You'll see the answer after each one."
+      />
       <Suspense fallback={<SetupSkeleton />}>
         <Setup />
       </Suspense>

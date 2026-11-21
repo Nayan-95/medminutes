@@ -198,7 +198,7 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts, re
       </ol>
 
       {/* Question */}
-      <article key={question.id} className="animate-rise rounded-2xl border bg-card p-5 shadow-card sm:p-8">
+      <article key={question.id} className="animate-rise rounded-xl border bg-card p-5 shadow-card sm:p-8">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
           <SubjectIcon name={question.subject} className="size-3.5" />
           {subjectLabel(question.subject)}
@@ -222,7 +222,7 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts, re
                 disabled={!!attempt || pending}
                 onClick={() => setSelected(opt)}
                 className={cn(
-                  "group flex items-start gap-3 rounded-xl border bg-card p-3.5 text-left transition-all outline-none sm:p-4",
+                  "group flex items-start gap-3 rounded-lg border bg-card p-3.5 text-left transition-all outline-none sm:p-4",
                   "focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default",
                   !attempt && !isPicked && "hover:border-foreground/25 hover:bg-muted/50",
                   !attempt && isPicked && "border-foreground ring-1 ring-foreground",
@@ -262,7 +262,7 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts, re
               data-testid="feedback"
               data-result={attempt.result}
               data-points={attempt.points}
-              className="mt-6 animate-rise rounded-xl border bg-muted/50 p-4 sm:p-5"
+              className="mt-6 animate-rise rounded-lg border bg-muted/50 p-4 sm:p-5"
             >
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className={cn("inline-flex items-center gap-1.5 font-semibold", result.tone)}>

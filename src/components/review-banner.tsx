@@ -50,11 +50,11 @@ export function ReviewBanner({
       data-testid="review-banner"
       data-due={due}
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border border-brand/30 bg-[color-mix(in_oklab,var(--brand)_7%,var(--card))] p-5 shadow-card sm:flex-row sm:items-center",
+        "flex flex-col gap-4 rounded-xl border border-brand/30 bg-[color-mix(in_oklab,var(--brand)_7%,var(--card))] p-5 shadow-card sm:flex-row sm:items-center",
         className,
       )}
     >
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-brand-foreground">
+      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand text-brand-foreground">
         <RotateCcw className="size-5" aria-hidden />
       </span>
       <div className="flex-1">

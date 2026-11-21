@@ -1,11 +1,17 @@
 # Where we are and what's next
 
-_Last updated: 18 Nov 2026._
+_Last updated: 22 Nov 2026._
 
 **Owner's chosen order (18 Nov):** report a question → daily reminders → weekly Grand Test. Checklist in `docs/TODO.md`.
 
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
+
+## Visual refresh (ADR 0011), on `Release/Release_Dev` since 22 Nov
+- minimalist-ui applied site-wide: warm neutrals, 12px max card corners, near-flat shadows, Newsreader serif titles, mono eyebrow labels, pastel tags, scroll reveals (off with reduced motion).
+- New shared pieces: `PageHeader`, `MainNav` (marks the current page), `Reveal`.
+- Home page rebuilt: serif hero, window-framed sample question, bento grid of all features, FAQ, closing band (shortcut hint no longer wraps; hidden on phones).
+- All 15 e2e tests pass locally; screenshots checked in light/dark × desktop/mobile. **Not merged to `main` yet:** owner to review, then say "merge".
 
 ## Ask a doubt (ADR 0010), live since 21 Nov
 - A short AI chat about a question after its answer is revealed (practice, mock review). Four one-tap doubts (cached and shared) plus typed doubts (never stored).

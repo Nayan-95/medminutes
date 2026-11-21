@@ -35,12 +35,12 @@ async function SignIn({ searchParams }: { searchParams: PageProps<"/signin">["se
 export default function SignInPage(props: PageProps<"/signin">) {
   return (
     <div className="flex flex-1 items-center justify-center">
-      <div className="w-full max-w-sm animate-rise rounded-2xl border bg-card p-8 text-center shadow-float">
+      <div className="w-full max-w-sm animate-rise rounded-xl border bg-card p-8 text-center shadow-float">
         <LogoMark className="mx-auto size-10" />
-        <h1 className="mt-5 text-xl font-semibold tracking-tight">Sign in to MedMinutes</h1>
+        <h1 className="mt-5 font-display text-3xl leading-tight">Sign in to MedMinutes</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">Your scores and progress are saved to your account.</p>
         <div className="mt-6 flex flex-col items-stretch gap-3 [&_form]:w-full [&_button]:w-full">
-          <Suspense fallback={<Skeleton className="h-11 w-full rounded-xl" />}>
+          <Suspense fallback={<Skeleton className="h-11 w-full rounded-lg" />}>
             <SignIn searchParams={props.searchParams} />
           </Suspense>
         </div>

@@ -30,7 +30,7 @@ export function ActivityHeatmap({
   const firstPhoneColumn = WEEKS - WEEKS_ON_PHONE;
 
   return (
-    <section className="rounded-2xl border bg-card shadow-card" data-testid="activity-heatmap">
+    <section className="rounded-xl border bg-card shadow-card" data-testid="activity-heatmap">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b px-5 py-4 sm:px-6">
         <div>
           <h2 className="font-semibold tracking-tight">Practice activity</h2>
