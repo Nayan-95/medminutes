@@ -7,6 +7,12 @@ _Last updated: 18 Nov 2026._
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
 
+## Ask a doubt (ADR 0010), on `Release/Release_Dev`, not yet merged
+- A short AI chat about a question after its answer is revealed (practice, mock review). Four one-tap doubts (cached and shared) plus typed doubts (never stored).
+- Built to save tokens: 80-word replies, `maxOutputTokens` 320, low thinking, explanation trimmed to 900 chars, only the last exchange resent. Measured about 250–300 tokens per doubt.
+- Limits: 3 doubts per question, 20 new calls per student in 24 h; shares the global `AI_DAILY_CAP` with "Why was I wrong?".
+- Migration 0009 (`ai_usage.kind`, `ai_doubt_cache`) is additive.
+
 ## AI "Why was I wrong?" (ADR 0009), live since 21 Nov
 - After a wrong answer (practice, mock review): Gemini explains why the pick is wrong, why the key is right, and one fact to remember. Labelled "AI · may contain errors".
 - Owner's choice (21 Nov): **Gemini free tier** (`gemini-3.8-flash`). Free-tier content may be used by Google; the privacy page says so. Only question content is sent.

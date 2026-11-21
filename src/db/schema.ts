@@ -334,8 +334,10 @@ export const aiUsage = pgTable(
     questionId: integer("question_id")
       .notNull()
       .references(() => questions.id),
-    /** True when the answer came from ai_explanations (free); false when the model was called. */
+    /** True when the answer came from a cache (free); false when the model was called. */
     cached: boolean("cached").notNull(),
+    /** "explain" (Why was I wrong?) or "doubt" (Ask a doubt, ADR 0010). */
+    kind: text("kind").notNull().default("explain"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -343,4 +345,25 @@ export const aiUsage = pgTable(
     // Global "model calls today" count.
     index("ai_usage_created_idx").on(t.createdAt),
   ],
+);
+
+/**
+ * Ask a doubt (docs/adr/0010): answers to the one-tap doubts ("Explain simply" etc.)
+ * are cached per question × chip × prompt version and shared by everyone.
+ * Typed (free-text) doubts are never stored.
+ */
+export const aiDoubtCache = pgTable(
+  "ai_doubt_cache",
+  {
+    id: serial("id").primaryKey(),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    chip: text("chip").notNull(),
+    promptVersion: smallint("prompt_version").notNull(),
+    model: text("model").notNull(),
+    answer: text("answer").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("ai_doubt_cache_key_uq").on(t.questionId, t.chip, t.promptVersion)],
 );

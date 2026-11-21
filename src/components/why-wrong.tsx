@@ -33,7 +33,7 @@ export function WhyWrong({ questionId, className }: { questionId: number; classN
   if (result) {
     const { explanation: e, chosenOption, correctOption } = result;
     return (
-      <section data-no-shortcuts data-testid="ai-explanation" aria-label="AI explanation" className={cn("animate-rise rounded-xl border bg-card p-4", className)}>
+      <section data-no-shortcuts data-testid="ai-explanation" aria-label="AI explanation" className={cn("w-full animate-rise rounded-xl border bg-card p-4", className)}>
         <p className="flex items-center gap-2 text-sm font-semibold">
           <Sparkles className="size-4 text-brand" aria-hidden />
           Why you were wrong

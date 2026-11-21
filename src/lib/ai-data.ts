@@ -44,8 +44,8 @@ async function readCache(questionId: number, chosen: Option): Promise<AiExplanat
 async function usageSince(userId: string, since: Date) {
   const [row] = await getDb()
     .select({
-      userCalls: sql<number>`count(*) filter (where ${aiUsage.userId} = ${userId} and not ${aiUsage.cached})::int`,
-      userRequests: sql<number>`count(*) filter (where ${aiUsage.userId} = ${userId})::int`,
+      userCalls: sql<number>`count(*) filter (where ${aiUsage.userId} = ${userId} and ${aiUsage.kind} = 'explain' and not ${aiUsage.cached})::int`,
+      userRequests: sql<number>`count(*) filter (where ${aiUsage.userId} = ${userId} and ${aiUsage.kind} = 'explain')::int`,
       globalCalls: sql<number>`count(*) filter (where not ${aiUsage.cached})::int`,
     })
     .from(aiUsage)

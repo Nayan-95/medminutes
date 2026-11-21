@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { ReportQuestion } from "@/components/report-question";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
+import { AskDoubt } from "@/components/ask-doubt";
 import { WhyWrong } from "@/components/why-wrong";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -343,7 +344,10 @@ async function Result({ params, searchParams }: { params: PageProps<"/mock/[sess
                       ) : (
                         <p className="mt-3 text-sm text-muted-foreground">No explanation available for this question.</p>
                       )}
-                      {outcomeOf(q) === "wrong" && <WhyWrong questionId={q.questionId} className="mt-4" />}
+                      <div className="mt-4 flex flex-col items-start gap-3">
+                        {outcomeOf(q) === "wrong" && <WhyWrong questionId={q.questionId} />}
+                        <AskDoubt questionId={q.questionId} />
+                      </div>
                       <ReportQuestion questionId={q.questionId} initiallyReported={reportedIds.includes(q.questionId)} className="mt-3" />
                     </div>
                   </details>

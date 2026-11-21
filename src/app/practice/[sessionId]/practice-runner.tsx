@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { ReportQuestion } from "@/components/report-question";
+import { AskDoubt } from "@/components/ask-doubt";
 import { WhyWrong } from "@/components/why-wrong";
 import { ScorePill } from "@/components/score-pill";
 import { SubjectIcon, subjectLabel } from "@/components/subject-icon";
@@ -291,7 +292,10 @@ export function PracticeRunner({ sessionId, kind, questions, initialAttempts, re
               ) : (
                 <p className="mt-3 text-sm text-muted-foreground">No explanation available for this question.</p>
               )}
-              {attempt.result === "wrong" && <WhyWrong questionId={question.id} className="mt-4" />}
+              <div className="mt-4 flex flex-col items-start gap-3">
+                {attempt.result === "wrong" && <WhyWrong questionId={question.id} />}
+                <AskDoubt questionId={question.id} />
+              </div>
               <ReportQuestion questionId={question.id} initiallyReported={reportedIds.includes(question.id)} className="mt-3" />
             </section>
           )}

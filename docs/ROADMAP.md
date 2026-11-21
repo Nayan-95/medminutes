@@ -14,6 +14,7 @@
 | 3.7 | Mock tests in the NEET PG 2026 pattern (ADR 0007): full (180 Q, 5 × 42 min) and mini (45 Q) | Timed sections, palette, mark for review, analysis and percentile | ✅ Shipped |
 | 3.8 | Report a question + owner review page (ADR 0008) | Students flag bad questions; the owner marks them fixed or dismissed | ✅ Shipped (e2e pending) |
 | 3.9 | AI "Why was I wrong?" with Gemini free tier (ADR 0009) | Wrong answers get a grounded, cached AI explanation | ✅ Shipped |
+| 3.10 | Ask a doubt: short, token-frugal AI chat per question (ADR 0010) | Students ask up to 3 doubts per question after answering | 🟡 Built, awaiting merge |
 | 4 | Reminders: installable PWA + Web Push (email needs a paid domain, so deferred) | Daily "X cards due" reminder | ⬜ Planned, see docs/NEXT.md |
 | 5 | Exam-date countdown | Low-recall topics are prioritised as the exam nears | ⬜ |
 | 6 | `.apkg` import, AI card generation (your own API key) | — | ⬜ |

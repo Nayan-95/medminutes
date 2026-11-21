@@ -5,6 +5,7 @@ import { practiceSessions, questionReports, questions, subjects } from "@/db/sch
 import type { ReportInput, ReportReason, ReportStatus } from "@/lib/reports";
 import { reportSchema } from "@/lib/reports";
 import type { Option } from "@/lib/scoring";
+import { hasSeenAnswer } from "@/lib/seen";
 import { cleanOptional, cleanText } from "@/lib/text";
 
 /** Question reports (docs/adr/0008): database access. */
@@ -38,14 +39,7 @@ export async function getOpenReportIdsForSession(userId: string, sessionId: stri
 export async function saveReport(userId: string, raw: ReportInput): Promise<void> {
   const input = reportSchema.parse(raw);
   const db = getDb();
-  const seen = await db.execute(sql`
-    select 1 from practice_sessions s
-     where s.user_id = ${userId}
-       and ${input.questionId} = any(s.question_ids)
-       and (s.ended_at is not null
-            or exists (select 1 from attempts a where a.session_id = s.id and a.question_id = ${input.questionId}))
-     limit 1`);
-  if (seen.rows.length === 0) throw new ReportRefused("You can only report questions you have answered.");
+  if (!(await hasSeenAnswer(userId, input.questionId))) throw new ReportRefused("You can only report questions you have answered.");
 
   const now = new Date();
   await db

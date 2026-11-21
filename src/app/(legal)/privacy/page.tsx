@@ -37,6 +37,12 @@ export default function PrivacyPage() {
           students who make the same mistake. We keep a count of how many explanations you request, to apply daily
           limits.
         </li>
+        <li>
+          <strong>Ask a doubt:</strong> the doubt you type (or the quick doubt you tap) is sent to Gemini together
+          with the question, under the same free-tier terms. Don&apos;t type personal details. We don&apos;t save
+          typed doubts or the chat; we only count how many doubts you ask. Answers to the quick doubts (like
+          &ldquo;Explain simply&rdquo;) are saved and shown to other students.
+        </li>
       </ul>
 
       <h2>Why we collect it</h2>
