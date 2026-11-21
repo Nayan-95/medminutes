@@ -29,6 +29,14 @@ export default function PrivacyPage() {
           <strong>Question reports:</strong> if you report a problem with a question, we keep the reason, any note
           you write, and that it came from your account. Only the app owner sees reports, and without your name.
         </li>
+        <li>
+          <strong>AI explanations:</strong> when you tap &ldquo;Why was I wrong?&rdquo;, we send the question, its
+          options, the answer key, the option you picked and the question&apos;s explanation to Google&apos;s Gemini
+          API. Nothing about you (no name, email or account) is sent. We use Gemini&apos;s free tier, under which
+          Google may use this question content to improve its products. The answer is saved and shown to other
+          students who make the same mistake. We keep a count of how many explanations you request, to apply daily
+          limits.
+        </li>
       </ul>
 
       <h2>Why we collect it</h2>

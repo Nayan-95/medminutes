@@ -7,6 +7,13 @@ _Last updated: 18 Nov 2026._
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
 
+## AI "Why was I wrong?" (ADR 0009), on `Release/Release_Dev`, not yet merged
+- After a wrong answer (practice, mock review): Gemini explains why the pick is wrong, why the key is right, and one fact to remember. Labelled "AI · may contain errors".
+- Owner's choice (21 Nov): **Gemini free tier** (`gemini-3.8-flash`). Free-tier content may be used by Google; the privacy page says so. Only question content is sent.
+- Cached per question × picked option (`ai_explanations`), shared by all users. Limits: 15 new calls/user/24 h, 150 requests/user/24 h, 400 new calls/day overall (`AI_DAILY_CAP`).
+- Migration 0008 (`ai_explanations`, `ai_usage`) is additive.
+- **Owner to do:** put `GEMINI_API_KEY` in `.env.local` and in Vercel (Production), then redeploy. Without it, only saved answers are served.
+
 ## Report a question (ADR 0008), live since 18 Nov
 - "Report a problem" appears after an answer is revealed (practice feedback, mock answer review). Reason + optional note (≤ 500 chars). One report per user × question; reporting again reopens it.
 - `/admin/reports` (owner only): reports grouped by question, anonymous, with Mark fixed / Dismiss / Reopen. Admins come from the **`ADMIN_EMAILS`** env var; empty means nobody, so CI stays locked.
@@ -55,7 +62,7 @@ Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Ph
 7. A/B test of the smart mix against random selection, split by user ID hash.
 
 ## Open decisions (ask the owner)
-1. **AI integration, decided before more add-on features** (see `research/02-ai-features.md`):
+1. **AI integration.** Decided 21 Nov: Gemini free tier; first feature "Why was I wrong?" (ADR 0009). Still open: (see `research/02-ai-features.md`):
    - **Budget:** strictly ₹0 with free LLM tiers (fragile), or a small capped monthly spend (e.g. ₹200–500) for reliable quality?
    - **Provider/model:** free tier vs Claude (Opus 5.5 default, Haiku 5.5 much cheaper; measure quality on a sample first).
    - **First feature:** recommended **"Why was I wrong?"** (grounded in the question's explanation, cached per question × chosen option), then the **one-time question-bank cleanup**.

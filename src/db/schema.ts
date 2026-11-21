@@ -298,3 +298,49 @@ export const questionReports = pgTable(
     check("question_reports_note_ck", sql`${t.note} is null or char_length(${t.note}) <= 500`),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// AI "Why was I wrong?" (docs/adr/0009). Explanations are cached per question ×
+// chosen option × prompt version and shared by every user, so each is generated
+// once. ai_usage logs each request for the per-user and global daily caps.
+// ---------------------------------------------------------------------------
+
+export const aiExplanations = pgTable(
+  "ai_explanations",
+  {
+    id: serial("id").primaryKey(),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    /** The wrong option the student picked. */
+    chosenOption: optionEnum("chosen_option").notNull(),
+    /** Bumped when the prompt changes, so old answers are regenerated on demand. */
+    promptVersion: smallint("prompt_version").notNull(),
+    model: text("model").notNull(),
+    /** { whyWrong, whyRight, remember } as validated JSON (src/lib/ai-explain.ts). */
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("ai_explanations_key_uq").on(t.questionId, t.chosenOption, t.promptVersion)],
+);
+
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    questionId: integer("question_id")
+      .notNull()
+      .references(() => questions.id),
+    /** True when the answer came from ai_explanations (free); false when the model was called. */
+    cached: boolean("cached").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("ai_usage_user_created_idx").on(t.userId, t.createdAt),
+    // Global "model calls today" count.
+    index("ai_usage_created_idx").on(t.createdAt),
+  ],
+);
