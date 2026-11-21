@@ -7,7 +7,7 @@ _Last updated: 18 Nov 2026._
 ## Shipped (live on `main`)
 Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Phase 2 progress dashboard · Phase 3 FSRS spaced repetition · Smart mix · Leaderboard and heatmap · Mock tests. Privacy and terms pages are live.
 
-## Ask a doubt (ADR 0010), on `Release/Release_Dev`, not yet merged
+## Ask a doubt (ADR 0010), live since 21 Nov
 - A short AI chat about a question after its answer is revealed (practice, mock review). Four one-tap doubts (cached and shared) plus typed doubts (never stored).
 - Built to save tokens: 80-word replies, `maxOutputTokens` 320, low thinking, explanation trimmed to 900 chars, only the last exchange resent. Measured about 250–300 tokens per doubt.
 - Limits: 3 doubts per question, 20 new calls per student in 24 h; shares the global `AI_DAILY_CAP` with "Why was I wrong?".
