@@ -42,14 +42,13 @@ function Section({ title, subtitle, icon: Icon, children, className, testId }: {
   );
 }
 
-function Person({ name, email, isMe }: { name: string | null; email: string | null; isMe: boolean }) {
+function Person({ name, isMe }: { name: string | null; isMe: boolean }) {
   return (
     <span className="block min-w-0">
       <span className="flex items-center gap-1.5 text-sm font-medium">
-        <span className="truncate">{shortName(name, email)}</span>
+        <span className="truncate">{shortName(name)}</span>
         {isMe && <span className="shrink-0 rounded-full bg-foreground px-1.5 py-px text-[10px] font-semibold text-background">You</span>}
       </span>
-      {email && <span className="block truncate text-xs text-muted-foreground">{email}</span>}
     </span>
   );
 }
@@ -84,7 +83,7 @@ function ScoreRow({ r, meId }: { r: Ranked; meId: string }) {
         )}
       </td>
       <td className="max-w-0 py-2.5 pr-2 pl-1">
-        <Person name={r.name} email={r.email} isMe={isMe} />
+        <Person name={r.name} isMe={isMe} />
       </td>
       <td className="hidden py-2.5 pr-3 text-right text-sm tabular-nums text-muted-foreground sm:table-cell">{formatPercent(accuracy(r))}</td>
       <td className="hidden py-2.5 pr-3 text-right text-sm tabular-nums text-muted-foreground md:table-cell">{r.answered.toLocaleString("en-IN")}</td>
@@ -131,7 +130,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
             label="Next to pass"
             testId="tile-next"
             value={s.next ? `${s.next.gap} pts` : "You lead"}
-            note={s.next ? `to pass ${shortName(s.next.row.name, s.next.row.email)}` : `Top score ${scope}`}
+            note={s.next ? `to pass ${shortName(s.next.row.name)}` : `Top score ${scope}`}
           />
           <Tile
             icon={Flame}
@@ -203,7 +202,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
                     <li key={r.userId} className={cn("flex items-center gap-3 rounded-lg px-2 py-2", isMe && "bg-muted/70")}>
                       <span className="w-7 text-sm font-semibold tabular-nums">{r.rank}</span>
                       <span className="min-w-0 flex-1">
-                        <Person name={r.name} email={r.email} isMe={isMe} />
+                        <Person name={r.name} isMe={isMe} />
                       </span>
                       <span className="text-right text-sm tabular-nums">
                         <span className="font-semibold">{formatScore(r.score)}</span>
@@ -226,7 +225,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
                   <li key={r.userId} className={cn("flex items-center gap-3 rounded-lg px-2 py-2", r.userId === data.me.id && "bg-muted/70")}>
                     <span className="w-7 text-sm font-semibold tabular-nums">{i + 1}</span>
                     <span className="min-w-0 flex-1">
-                      <Person name={r.name} email={r.email} isMe={r.userId === data.me.id} />
+                      <Person name={r.name} isMe={r.userId === data.me.id} />
                     </span>
                     <span className="text-right text-sm tabular-nums">
                       <span className="font-semibold">{formatPercent(r.accuracy)}</span>
@@ -248,7 +247,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
                   <li key={i.row.userId} className={cn("flex items-center gap-3 rounded-lg px-2 py-2", i.row.userId === data.me.id && "bg-muted/70")}>
                     <span className="w-7 text-sm font-semibold tabular-nums">{n + 1}</span>
                     <span className="min-w-0 flex-1">
-                      <Person name={i.row.name} email={i.row.email} isMe={i.row.userId === data.me.id} />
+                      <Person name={i.row.name} isMe={i.row.userId === data.me.id} />
                     </span>
                     <span className="text-right text-sm tabular-nums">
                       <span className="font-semibold">+{Math.round(i.delta * 100)}%</span>
@@ -275,8 +274,7 @@ function Board({ data, window, subjectName }: { data: Leaderboard; window: Windo
             </span>
           ) : (
             <span>
-              Others see you as <span className="font-medium text-foreground">{shortName(data.me.name, data.me.email)}</span> with your email
-              {data.me.email ? <> ({data.me.email})</> : null}.
+              Others see you as <span className="font-medium text-foreground">{shortName(data.me.name)}</span>.
             </span>
           )}
         </p>

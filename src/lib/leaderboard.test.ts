@@ -6,7 +6,6 @@ import { accuracyBoard, mostImproved, rankByScore, shortName, standing, weekStar
 const row = (userId: string, score: number, correct = 0, wrong = 0, answered = correct + wrong): Row => ({
   userId,
   name: userId,
-  email: `${userId}@example.com`,
   score,
   correct,
   wrong,
@@ -16,14 +15,14 @@ const row = (userId: string, score: number, correct = 0, wrong = 0, answered = c
 
 describe("shortName", () => {
   it("shows first name and last initial", () => {
-    expect(shortName("Priya Sharma", null)).toBe("Priya S.");
-    expect(shortName("  anil kumar reddy ", null)).toBe("anil R.");
-    expect(shortName("Madonna", null)).toBe("Madonna");
+    expect(shortName("Priya Sharma")).toBe("Priya S.");
+    expect(shortName("  anil kumar reddy ")).toBe("anil R.");
+    expect(shortName("Madonna")).toBe("Madonna");
   });
 
-  it("falls back to the email's local part", () => {
-    expect(shortName(null, "dr.rao@gmail.com")).toBe("dr.rao");
-    expect(shortName(null, null)).toBe("Aspirant");
+  it("falls back to Aspirant, never the email", () => {
+    expect(shortName(null)).toBe("Aspirant");
+    expect(shortName("   ")).toBe("Aspirant");
   });
 });
 

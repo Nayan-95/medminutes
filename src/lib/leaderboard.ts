@@ -23,7 +23,6 @@ export interface Totals {
 export interface Row extends Totals {
   userId: string;
   name: string | null;
-  email: string | null;
   streak: number;
 }
 
@@ -31,10 +30,10 @@ export interface Ranked extends Row {
   rank: number;
 }
 
-/** "Priya Sharma" → "Priya S."; one word stays as is; no name → the email's local part. */
-export function shortName(name: string | null, email: string | null): string {
+/** "Priya Sharma" → "Priya S."; one word stays as is; no name → "Aspirant". Emails are never shown. */
+export function shortName(name: string | null): string {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return email?.split("@")[0] ?? "Aspirant";
+  if (parts.length === 0) return "Aspirant";
   if (parts.length === 1) return parts[0];
   return `${parts[0]} ${parts.at(-1)!.charAt(0).toUpperCase()}.`;
 }

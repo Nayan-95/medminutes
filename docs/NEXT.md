@@ -48,7 +48,7 @@ Phase 0 foundation · Phase 1 MCQ practice + Google sign-in · UI redesign · Ph
   - this week (from Monday IST) and all time, with a subject filter
   - rank, percentile and points to pass the next person
   - people around you, most accurate (50+ answers) and most improved this week
-  - names shown as "First L." with the full email (owner's choice); opt-out button
+  - names shown as "First L." only, no email (changed 26 Nov 2026); opt-out button
 - The progress page has a GitHub-style practice heatmap with current and longest streak.
 - Migration 0005 (`users.leaderboard_hidden`) has been applied to the shared DB.
 

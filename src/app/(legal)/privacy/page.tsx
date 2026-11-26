@@ -8,7 +8,7 @@ export default function PrivacyPage() {
   return (
     <>
       <h1>Privacy policy</h1>
-      <p>Last updated: 14 November 2026</p>
+      <p>Last updated: 26 November 2026</p>
       <p>
         MedMinutes is a free NEET PG practice app. This page explains what we collect, why, and what you can
         ask us to do with it.
@@ -54,9 +54,8 @@ export default function PrivacyPage() {
       <h2>Leaderboard: what other users see</h2>
       <p>
         MedMinutes has a leaderboard that every signed-in user can see. By default it shows you with your{" "}
-        <strong>first name and last initial</strong> (for example &ldquo;Priya S.&rdquo;) and your{" "}
-        <strong>full email address</strong>, together with your score, accuracy, number of answers and practice
-        streak. Your profile photo is not shown. You can hide yourself at any time with the &ldquo;Hide me from the
+        <strong>first name and last initial</strong> (for example &ldquo;Priya S.&rdquo;), together with your score, accuracy, number of answers and practice
+        streak. Your email address and profile photo are never shown to other users. You can hide yourself at any time with the &ldquo;Hide me from the
         leaderboard&rdquo; button on the leaderboard page; you will still see your own rank, and nobody else will
         see you.
       </p>

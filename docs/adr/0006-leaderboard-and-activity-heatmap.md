@@ -18,10 +18,10 @@ The owner wants healthy competition: a leaderboard by total score (overall and p
   - "Around you": the 2 people above and below you
   - "Most accurate", with at least 50 answers (20 within a subject), so careful practice wins and not just volume
   - "Most improved this week": accuracy this week versus all earlier answers, with at least 20 answers in each
-- **Identity, by the owner's decision:** first name and last initial ("Priya S."), plus the **full email address** in dim text, visible to every signed-in user. No photo.
+- **Identity:** first name and last initial ("Priya S."), visible to every signed-in user. No email and no photo. Users without a name show as "Aspirant".
   - **Opt-out:** `users.leaderboard_hidden` (migration 0005), toggled from the page. Hidden users don't appear for anyone else but still see their own rank.
   - The privacy policy says this explicitly.
-  - The owner was told about the privacy risks of full emails (harvesting, consent under the DPDP Act) and chose them over a masked email.
+  - **Update 26 Nov 2026:** full emails were originally shown next to names. The owner removed them; emails are no longer shown anywhere or sent to the leaderboard page.
 - **Test account:** the e2e account is always created hidden, so real users never see it.
 
 ### Practice heatmap (on `/progress`)
@@ -34,4 +34,4 @@ The owner wants healthy competition: a leaderboard by total score (overall and p
 ## Consequences
 - The leaderboard is one aggregate query over `attempts`, plus a per-user day list for streaks. That is fine for hundreds of users. At thousands, precompute daily totals (a summary table refreshed when answers are saved, or by a nightly job) before Neon compute becomes a problem.
 - Rows exist only for users who have answered something in the chosen window and subject.
-- Showing emails makes MedMinutes responsible for that data. If complaints come in, switch to masked emails (a one-line change in the `Person` component in `src/app/leaderboard/page.tsx`).
+- Emails are not selected by the leaderboard query, so they can't leak into the page.

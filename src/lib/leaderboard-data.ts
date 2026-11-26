@@ -18,7 +18,6 @@ import { APP_TIME_ZONE, computeStreak, dayKey } from "@/lib/streak";
 type DbRow = {
   user_id: string;
   name: string | null;
-  email: string | null;
   days: string[] | null;
   all_score: number;
   all_correct: number;
@@ -43,7 +42,7 @@ export async function getLeaderboard(meId: string, opts: { window: Window; subje
 
   const [{ rows }, [me]] = await Promise.all([
     getDb().execute<DbRow>(sql`
-      select u.id as user_id, u.name, u.email,
+      select u.id as user_id, u.name,
              (select array_agg(distinct to_char(a2.created_at at time zone ${APP_TIME_ZONE}, 'YYYY-MM-DD'))
                 from attempts a2
                where a2.user_id = u.id and a2.created_at > now() - interval '400 days') as days,
@@ -62,14 +61,13 @@ export async function getLeaderboard(meId: string, opts: { window: Window; subje
         ${subjectJoin}
        where (not u.leaderboard_hidden or u.id = ${meId})
        group by u.id`),
-    getDb().select({ hidden: users.leaderboardHidden, name: users.name, email: users.email }).from(users).where(eq(users.id, meId)),
+    getDb().select({ hidden: users.leaderboardHidden, name: users.name }).from(users).where(eq(users.id, meId)),
   ]);
 
   const today = dayKey(now);
   const toRow = (r: DbRow, w: Window): Row => ({
     userId: r.user_id,
     name: r.name,
-    email: r.email,
     streak: computeStreak(r.days ?? [], today).current,
     score: w === "week" ? r.week_score : r.all_score,
     correct: w === "week" ? r.week_correct : r.all_correct,
@@ -85,7 +83,7 @@ export async function getLeaderboard(meId: string, opts: { window: Window; subje
 
   return {
     weekStart: since,
-    me: { id: meId, hidden: me?.hidden ?? false, name: me?.name ?? null, email: me?.email ?? null },
+    me: { id: meId, hidden: me?.hidden ?? false, name: me?.name ?? null },
     total: ranked.length,
     top,
     meOutsideTop,

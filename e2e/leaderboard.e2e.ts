@@ -41,7 +41,8 @@ test("leaderboard shows your rank and score, filters by window and subject, and 
   // Hidden users still see themselves, marked "You", with this week's score.
   const me = page.getByTestId("my-row");
   await expect(me).toContainText("You");
-  await expect(me).toContainText(E2E_USER.email);
+  await expect(me).toContainText("E2E U.");
+  await expect(page.getByText(E2E_USER.email)).toHaveCount(0);
   await expect(me).toContainText("+11");
   await expect(page.getByTestId("tile-rank").locator("[data-slot=value]")).toHaveText(/^#\d+$/);
   await expect(page.getByTestId("tile-streak").locator("[data-slot=value]")).toHaveText("1 day");
@@ -62,7 +63,7 @@ test("leaderboard shows your rank and score, filters by window and subject, and 
   const visibility = page.getByTestId("visibility");
   await expect(visibility).toContainText("You're hidden.");
   await visibility.getByRole("button", { name: "Show me on the leaderboard" }).click();
-  await expect(visibility).toContainText(`Others see you as E2E U. with your email`);
+  await expect(visibility).toContainText("Others see you as E2E U.");
   await visibility.getByRole("button", { name: "Hide me from the leaderboard" }).click();
   await expect(visibility).toContainText("You're hidden.");
 });
